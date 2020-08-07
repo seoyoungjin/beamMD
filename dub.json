@@ -1,0 +1,21 @@
+{
+	"name": "beamuimarkdown",
+	"description": "BeamUI markdown widget",
+	"license": "BSL-1.0",
+	"authors": [
+		"Seo Youngjin"
+	],
+	"copyright": "Copyright © 2020, Seo Youngjin",
+
+    "targetName": "beammarkdown",
+    "targetPath": "lib",
+    "targetType": "staticLibrary",
+
+	"sourcePaths": [ "src" ],
+
+	"subPackages": [ "./example/" ],
+
+	"dependencies": {
+        "beamui": { "path": "../beamui" }
+    }
+}

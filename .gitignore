@@ -1,0 +1,15 @@
+.dub
+docs.json
+__dummy.html
+docs/
+/beammarkdown
+beammarkdown.so
+beammarkdown.dylib
+beammarkdown.dll
+beammarkdown.a
+beammarkdown.lib
+beammarkdown-test-*
+*.exe
+*.o
+*.obj
+*.lst

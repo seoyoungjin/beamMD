@@ -1,0 +1,14 @@
+{
+	"name" : "example",
+	"license" : "BSL-1.0",
+
+	"targetName" : "example",
+	"targetPath" : "bin",
+	"targetType" : "executable",
+
+	"dependencies": {
+		"beamuimarkdown": { "path": "../" },
+		"beamui:platforms" : { "path" : "../../beamui/platforms" },
+		"hunt-markdown" : "~>1.1.0"
+    }
+}
