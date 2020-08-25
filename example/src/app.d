@@ -15,11 +15,11 @@ int main()
     GuiApp app;
     if (!app.initialize())
         return -1;
-    // load a better theme
-    platform.stylesheets = [StyleResource("light")];
 
-    // set some global styles before we start
-    setStyleSheet(currentTheme, css);
+	// view the hardcoded CSS string as an embedded resource
+    resourceList.embedFromMemory("_styles_.css", css);
+	// setup a better theme and our stylesheet
+    platform.stylesheets = [StyleResource("light"), StyleResource("_styles_")];
 
     // create a window with 1x1 size and expand it to the size of content
     Window window = platform.createWindow("MarkDownView", null, WindowOptions.expanded, 1, 1);

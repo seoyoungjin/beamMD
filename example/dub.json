@@ -8,7 +8,8 @@
 
 	"dependencies": {
 		"beamuimarkdown": { "path": "../" },
-		"beamui:platforms" : { "path" : "../../beamui/platforms" },
-		"hunt-markdown" : "~>1.1.0"
+        "beamui": { "version": "~>0.8.0" },
+        "beamui:platforms": { "version": "~>0.8.0" },
+		"hunt-markdown" : { "version": "~>1.1.0" }
     }
 }

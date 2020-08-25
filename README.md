@@ -24,6 +24,13 @@ Screen Shot
 
 TBD
 
+Tricks
+------
+
+```
+dub add-local ~/work/beamui
+```
+
 Blog
 ----
 
