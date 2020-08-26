@@ -1,6 +1,7 @@
 module beamui.widgets.markdownview;
 
 import std.stdio;
+import std.file;
 
 import beamui.core.config;
 import beamui.widgets.widget;
@@ -14,7 +15,8 @@ class MarkDownView : Widget
 {
     this()
     {
-        string source = "foo foo\n\nbar\nbar";
+        // string source = "foo foo\n\nbar\nbar";
+        string source = readText("resources/spec.md");
         string rendered = defaultRenderer().render(parse(source));
         writeln(rendered);
     }
