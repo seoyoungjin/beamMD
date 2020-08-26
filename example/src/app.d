@@ -2,15 +2,12 @@ module app;
 
 import beamui;
 import beamui.widgets.markdownview;
-import hunt.markdown.parser.Parser;
 
 mixin RegisterPlatforms;
 
 
 int main()
 {
-    Parser p = Parser.builder().build();
-
     // initialize library
     GuiApp app;
     if (!app.initialize())
@@ -22,18 +19,18 @@ int main()
     platform.stylesheets = [StyleResource("light"), StyleResource("_styles_")];
 
     // create a window with 1x1 size and expand it to the size of content
-    Window window = platform.createWindow("MarkDownView", null, WindowOptions.expanded, 1, 1);
+    Window window = platform.createWindow("MarkDownDemo", null, WindowOptions.expanded, 1, 1);
 
 	// MarkDownView mdv = new MarkDownView();
 
     // show it with the temperature converter as its main widget
-    window.show(() => render!MarkDownView);
+    window.show(() => render!MarkDownDemo);
     // run application event loop
     return platform.runEventLoop();
 }
 
 const css = `
-TemperatureConverter {
+MarkDownDemo {
     display: grid;
     grid-template-columns: 80px 80px;
     grid-template-rows: auto auto;
@@ -42,3 +39,13 @@ TemperatureConverter {
 .error { border-color: red }
 `;
 
+class MarkDownDemo : Panel
+{
+    override void build()
+    {
+        MarkDownView md = render!MarkDownView;
+        wrap(
+            md
+        );
+    }
+}

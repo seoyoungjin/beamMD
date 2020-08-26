@@ -1,13 +1,14 @@
-module beamui.widgets.marKdownview;
+module beamui.widgets.markdownview;
 
 import std.stdio;
 
 import beamui.core.config;
 import beamui.widgets.widget;
 
-import hunt.markdown.renderer.text.TextContentRenderer;
 import hunt.markdown.node.Node;
 import hunt.markdown.parser.Parser;
+
+import beamui.widgets.markdownview.renderer.ContentRenderer;
 
 class MarkDownView : Widget
 {
@@ -22,8 +23,8 @@ class MarkDownView : Widget
     // {
     // }
 
-    private TextContentRenderer defaultRenderer() {
-        return TextContentRenderer.builder().build();
+    private ContentRenderer defaultRenderer() {
+        return ContentRenderer.builder().build();
     }
 
 
