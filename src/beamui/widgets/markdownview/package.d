@@ -2,23 +2,25 @@ module beamui.widgets.markdownview;
 
 import std.stdio;
 import std.file;
+import std.conv: to;
 
 import beamui.core.config;
-import beamui.widgets.widget;
+import beamui.widgets.editors;
 
 import hunt.markdown.node.Node;
 import hunt.markdown.parser.Parser;
 
 import beamui.widgets.markdownview.renderer.ContentRenderer;
 
-class MarkDownView : Widget
+class MarkDownView : TextArea
 {
     this()
     {
-        // string source = "foo foo\n\nbar\nbar";
         string source = readText("resources/spec.md");
         string rendered = defaultRenderer().render(parse(source));
-        writeln(rendered);
+
+        content = new EditableContent;
+        content.text = to!dstring(rendered);
     }
 
     // override void drawContent(Painter pr)

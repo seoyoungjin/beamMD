@@ -18,8 +18,7 @@ int main()
 	// setup a better theme and our stylesheet
     platform.stylesheets = [StyleResource("light"), StyleResource("_styles_")];
 
-    // create a window with 1x1 size and expand it to the size of content
-    Window window = platform.createWindow("MarkDownDemo", null, WindowOptions.expanded, 1, 1);
+    Window window = platform.createWindow("MarkDownDemo");
 
 	// MarkDownView mdv = new MarkDownView();
 
@@ -31,10 +30,13 @@ int main()
 
 const css = `
 MarkDownDemo {
-    display: grid;
-    grid-template-columns: 80px 80px;
-    grid-template-rows: auto auto;
+    display: flex;
+    flex-direction: column;
     padding: 12px;
+}
+MarkDownView {
+    width: 500px;
+    height: 400px;
 }
 .error { border-color: red }
 `;
@@ -45,7 +47,9 @@ class MarkDownDemo : Panel
     {
         MarkDownView md = render!MarkDownView;
         wrap(
-            md
+            render((Label lb) { lb.text = "Top"; }),
+            md,
+            render((Label lb) { lb.text = "Bottom"; }),
         );
     }
 }
