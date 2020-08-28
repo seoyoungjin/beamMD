@@ -1,5 +1,8 @@
 module beamui.widgets.markdownview.renderer.ContentRenderer;
 
+import std.stdio;
+import beamui;
+
 import hunt.markdown.Extension;
 import hunt.markdown.internal.renderer.NodeRendererMap;
 import hunt.markdown.node.Node;
@@ -32,6 +35,7 @@ class ContentRenderer : Renderer {
         // Add as last. This means clients can override the rendering of core nodes if they want.
         this.nodeRendererFactories.add(new class ContentNodeRendererFactory {
             override public NodeRenderer create(ContentNodeRendererContext context) {
+                writeln("context = ", context);
                 return new CoreContentNodeRenderer(context);
             }
         });
@@ -48,6 +52,11 @@ class ContentRenderer : Renderer {
 
     public void render(Node node, Appendable output) {
         RendererContext context = new RendererContext(new ContentWriter(output));
+        context.render(node);
+    }
+
+    public void render(Node node, Painter pr) {
+        RendererContext context = new RendererContext(new ContentWriter(pr));
         context.render(node);
     }
 

@@ -5,27 +5,37 @@ import std.file;
 import std.conv: to;
 
 import beamui.core.config;
-import beamui.widgets.editors;
+import beamui.widgets.widget;
+import beamui.widgets.controls;
 
 import hunt.markdown.node.Node;
 import hunt.markdown.parser.Parser;
 
 import beamui.widgets.markdownview.renderer.ContentRenderer;
 
-class MarkDownView : TextArea
+// LATER - scrollview
+// context - current position, css
+
+class MarkDownView : Canvas
 {
+    string source;
+    Node doc;
+
     this()
     {
-        string source = readText("resources/spec.md");
-        string rendered = defaultRenderer().render(parse(source));
-
-        content = new EditableContent;
-        content.text = to!dstring(rendered);
+        source = readText("resources/spec.md");
+        doc = parse(source);
+        onDraw = &drawContent;
     }
 
-    // override void drawContent(Painter pr)
-    // {
-    // }
+    void drawContent(Painter pr, Size sz)
+    {
+        writeln("drawContent size = ", sz);
+        // content = new EditableContent;
+        // content.text = to!dstring(rendered);
+        // string rendered = defaultRenderer().render(parse(source));
+        defaultRenderer().render(doc, pr);
+    }
 
     private ContentRenderer defaultRenderer() {
         return ContentRenderer.builder().build();

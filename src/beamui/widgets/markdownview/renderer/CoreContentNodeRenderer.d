@@ -1,8 +1,8 @@
 module beamui.widgets.markdownview.renderer.CoreContentNodeRenderer;
 
 import hunt.markdown.node;
-import hunt.markdown.node.Heading;
 import hunt.markdown.node.AbstractVisitor;
+import hunt.markdown.node.Heading;
 import hunt.markdown.renderer.NodeRenderer;
 import hunt.markdown.internal.renderer.text.BulletListHolder;
 import hunt.markdown.internal.renderer.text.ListHolder;
@@ -13,13 +13,17 @@ import beamui.widgets.markdownview.renderer.ContentWriter;
 
 import hunt.collection.HashSet;
 import hunt.collection.Set;
-import hunt.Char;
+import hunt.collection.Map;
+import hunt.collection.LinkedHashMap;
+import hunt.collection.Collections;
+import hunt.text;
 import hunt.util.StringBuilder;
 
+import std.stdio;
 import std.conv;
 
+import hunt.Char;
 alias Character = Char;
-
 /**
  * The node renderer that renders all the core nodes (comes last in the order of node renderers).
  */
@@ -27,7 +31,6 @@ class CoreContentNodeRenderer : AbstractVisitor, NodeRenderer {
 
     protected ContentNodeRendererContext context;
     private ContentWriter textContent;
-
     private ListHolder listHolder;
 
     public this(ContentNodeRendererContext context) {
@@ -61,6 +64,7 @@ class CoreContentNodeRenderer : AbstractVisitor, NodeRenderer {
     }
 
     public void render(Node node) {
+		writeln("render(node)", node);
         node.accept(this);
     }
 
@@ -69,29 +73,53 @@ class CoreContentNodeRenderer : AbstractVisitor, NodeRenderer {
         visitChildren(document);
     }
 
-    override public void visit(BlockQuote blockQuote) {
-        textContent.write("«");
-        visitChildren(blockQuote);
-        textContent.write("»");
+    override public void visit(Heading heading) {
+		string htag = "h" ~ heading.getLevel().to!string;
+		writeln("visit(heading)", htag);
+        // html.line();
+        // html.tag(htag, getAttrs(heading, htag));
+        visitChildren(heading);
+        // html.tag('/' ~ htag);
+        // html.line();
+    }
 
-        writeEndOfLineIfNeeded(blockQuote, null);
+    override public void visit(Paragraph paragraph) {
+        // bool inTightList = isInTightList(paragraph);
+        // if (!inTightList) {
+        //     html.line();
+        //    html.tag("p", getAttrs(paragraph, "p"));
+        // }
+        visitChildren(paragraph);
+        // if (!inTightList) {
+        //     html.tag("/p");
+        //     html.line();
+        // }
+    }
+
+    override public void visit(BlockQuote blockQuote) {
+		writeln("visit(blockQoute)", blockQuote);
+        // html.line();
+        // html.tag("blockquote", getAttrs(blockQuote, "blockquote"));
+        // html.line();
+        visitChildren(blockQuote);
+        // html.line();
+        // html.tag("/blockquote");
+        // html.line();
     }
 
     override public void visit(BulletList bulletList) {
-        if (listHolder !is null) {
-            writeEndOfLine();
-        }
-        listHolder = new BulletListHolder(listHolder, bulletList);
+        // listHolder = new BulletListHolder(listHolder, bulletList);
         visitChildren(bulletList);
-        writeEndOfLineIfNeeded(bulletList, null);
-        if (listHolder.getParent() !is null) {
-            listHolder = listHolder.getParent();
-        } else {
-            listHolder = null;
-        }
+        // writeEndOfLineIfNeeded(bulletList, null);
+        // if (listHolder.getParent() !is null) {
+        //    listHolder = listHolder.getParent();
+        // } else {
+        //    listHolder = null;
+        //}
     }
 
     override public void visit(Code code) {
+		writeln("visit(code)", code);
         textContent.write('\"');
         textContent.write(code.getLiteral());
         textContent.write('\"');
@@ -108,11 +136,6 @@ class CoreContentNodeRenderer : AbstractVisitor, NodeRenderer {
 
     override public void visit(HardLineBreak hardLineBreak) {
         writeEndOfLineIfNeeded(hardLineBreak, null);
-    }
-
-    override public void visit(Heading heading) {
-        visitChildren(heading);
-        writeEndOfLineIfNeeded(heading, new Char(':'));
     }
 
     override public void visit(ThematicBreak thematicBreak) {
@@ -179,14 +202,6 @@ class CoreContentNodeRenderer : AbstractVisitor, NodeRenderer {
         }
     }
 
-    override public void visit(Paragraph paragraph) {
-        visitChildren(paragraph);
-        // Add "end of line" only if its "root paragraph.
-        if (paragraph.getParent() is null || cast(Document)paragraph.getParent() !is null) {
-            writeEndOfLineIfNeeded(paragraph, null);
-        }
-    }
-
     override public void visit(SoftLineBreak softLineBreak) {
         writeEndOfLineIfNeeded(softLineBreak, null);
     }
@@ -204,6 +219,7 @@ class CoreContentNodeRenderer : AbstractVisitor, NodeRenderer {
         }
     }
 
+	// XXX
     private void writeText(string text) {
         if (context.stripNewlines()) {
             textContent.writeStripped(text);
