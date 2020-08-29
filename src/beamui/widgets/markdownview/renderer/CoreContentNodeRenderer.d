@@ -74,13 +74,9 @@ class CoreContentNodeRenderer : AbstractVisitor, NodeRenderer {
     }
 
     override public void visit(Heading heading) {
-        string htag = "h" ~ heading.getLevel().to!string;
-        writeln("visit(heading)", htag);
-        // html.line();
-        // html.tag(htag, getAttrs(heading, htag));
+        writeln("visit(heading)", heading.getLevel());
+        textContent.setHeadingStyle(heading.getLevel());
         visitChildren(heading);
-        // html.tag('/' ~ htag);
-        // html.line();
     }
 
     override public void visit(Paragraph paragraph) {
@@ -120,9 +116,9 @@ class CoreContentNodeRenderer : AbstractVisitor, NodeRenderer {
 
     override public void visit(Code code) {
         writeln("visit(code)", code);
-        textContent.write('\"');
+        // textContent.write('\"');
         textContent.write(code.getLiteral());
-        textContent.write('\"');
+        // textContent.write('\"');
     }
 
     override public void visit(FencedCodeBlock fencedCodeBlock) {
@@ -230,6 +226,7 @@ class CoreContentNodeRenderer : AbstractVisitor, NodeRenderer {
         bool hasTitle = title !is null && !(title == destination);
         bool hasDestination = destination !is null && !(destination == (""));
 
+/*
         if (hasChild) {
             textContent.write('"');
             visitChildren(node);
@@ -255,9 +252,11 @@ class CoreContentNodeRenderer : AbstractVisitor, NodeRenderer {
         if (hasChild && (hasTitle || hasDestination)) {
             textContent.write(')');
         }
+*/
     }
 
     private void writeEndOfLineIfNeeded(Node node, Character c) {
+/*
         if (context.stripNewlines()) {
             if (c !is null) {
                 textContent.write(c.charValue);
@@ -270,13 +269,16 @@ class CoreContentNodeRenderer : AbstractVisitor, NodeRenderer {
                 textContent.line();
             }
         }
+*/
     }
 
     private void writeEndOfLine() {
+/*
         if (context.stripNewlines()) {
             textContent.whitespace();
         } else {
             textContent.line();
         }
+*/
     }
 }

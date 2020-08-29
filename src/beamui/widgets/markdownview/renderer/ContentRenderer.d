@@ -51,8 +51,8 @@ class ContentRenderer : Renderer {
     }
 
     public void render(Node node, Appendable output) {
-        RendererContext context = new RendererContext(new ContentWriter(output));
-        context.render(node);
+        // RendererContext context = new RendererContext(new ContentWriter(output));
+        // context.render(node);
     }
 
     public void render(Node node, Painter pr, Size sz) {
