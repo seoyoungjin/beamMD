@@ -34,7 +34,7 @@ class MarkDownView : Canvas
         // content = new EditableContent;
         // content.text = to!dstring(rendered);
         // string rendered = defaultRenderer().render(parse(source));
-        defaultRenderer().render(doc, pr);
+        defaultRenderer().render(doc, pr, sz);
     }
 
     private ContentRenderer defaultRenderer() {

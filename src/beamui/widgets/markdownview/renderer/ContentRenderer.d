@@ -55,8 +55,8 @@ class ContentRenderer : Renderer {
         context.render(node);
     }
 
-    public void render(Node node, Painter pr) {
-        RendererContext context = new RendererContext(new ContentWriter(pr));
+    public void render(Node node, Painter pr, Size sz) {
+        RendererContext context = new RendererContext(new ContentWriter(pr, sz));
         context.render(node);
     }
 

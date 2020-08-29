@@ -64,7 +64,7 @@ class CoreContentNodeRenderer : AbstractVisitor, NodeRenderer {
     }
 
     public void render(Node node) {
-		writeln("render(node)", node);
+        writeln("render(node)", node);
         node.accept(this);
     }
 
@@ -74,8 +74,8 @@ class CoreContentNodeRenderer : AbstractVisitor, NodeRenderer {
     }
 
     override public void visit(Heading heading) {
-		string htag = "h" ~ heading.getLevel().to!string;
-		writeln("visit(heading)", htag);
+        string htag = "h" ~ heading.getLevel().to!string;
+        writeln("visit(heading)", htag);
         // html.line();
         // html.tag(htag, getAttrs(heading, htag));
         visitChildren(heading);
@@ -97,7 +97,7 @@ class CoreContentNodeRenderer : AbstractVisitor, NodeRenderer {
     }
 
     override public void visit(BlockQuote blockQuote) {
-		writeln("visit(blockQoute)", blockQuote);
+        writeln("visit(blockQoute)", blockQuote);
         // html.line();
         // html.tag("blockquote", getAttrs(blockQuote, "blockquote"));
         // html.line();
@@ -119,7 +119,7 @@ class CoreContentNodeRenderer : AbstractVisitor, NodeRenderer {
     }
 
     override public void visit(Code code) {
-		writeln("visit(code)", code);
+        writeln("visit(code)", code);
         textContent.write('\"');
         textContent.write(code.getLiteral());
         textContent.write('\"');
@@ -139,10 +139,7 @@ class CoreContentNodeRenderer : AbstractVisitor, NodeRenderer {
     }
 
     override public void visit(ThematicBreak thematicBreak) {
-        if (!context.stripNewlines()) {
-            textContent.write("***");
-        }
-        writeEndOfLineIfNeeded(thematicBreak, null);
+        textContent.line();
     }
 
     override public void visit(HtmlInline htmlInline) {
@@ -219,7 +216,7 @@ class CoreContentNodeRenderer : AbstractVisitor, NodeRenderer {
         }
     }
 
-	// XXX
+    // XXX
     private void writeText(string text) {
         if (context.stripNewlines()) {
             textContent.writeStripped(text);

@@ -15,22 +15,24 @@ class ContentWriter {
 
     private Appendable buffer;
     private Painter painter;
+    private Size size;
+    private Point current;
 
     private char lastChar;
-    int yyy; // XXX
 
     public this(Appendable o) {
         buffer = o;
     }
 
-    public this(Painter pr) {
+    public this(Painter pr, Size sz) {
         writeln(__FUNCTION__);
 
         import hunt.util.StringBuilder;
         buffer = new StringBuilder();
 
-        yyy = 20;
         painter = pr;
+        size = sz;
+        current.x = current.y = 0;
     }
 
     public void whitespace() {
@@ -49,9 +51,8 @@ class ContentWriter {
 
     public void line() {
         writeln(__FUNCTION__);
-        if (lastChar != 0 && lastChar != '\n') {
-            append('\n');
-        }
+        painter.drawLine(0, current.y + 2, size.w, current.y + 2, NamedColor.black);
+        current.y += 5;
     }
 
     public void writeStripped(string s) {
@@ -72,8 +73,8 @@ class ContentWriter {
         st.wrap = true;
 
         // drawSimpleText(painter, s, 0, 80, sz.w, st);
-        drawSimpleText(painter, to!dstring(s), 0, yyy, 1000.0, st);
-        yyy += 20;
+        drawSimpleText(painter, to!dstring(s), current.x, current.y + 20, size.w, st);
+        current.y += 20;
     }
 
     public void write(char c) {

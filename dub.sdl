@@ -1,0 +1,16 @@
+name "beamuimarkdown"
+description "BeamUI markdown widget"
+license "BSL-1.0"
+authors "Seo Youngjin"
+copyright "Copyright © 2020, Seo Youngjin"
+
+targetName "beammarkdown"
+targetPath "lib"
+targetType "staticLibrary"
+
+sourcePaths "src"
+
+subPackages "example"
+
+dependency "beamui" version = "~>0.8.0"
+dependency "hunt-markdown" version = "~>1.1.0"
