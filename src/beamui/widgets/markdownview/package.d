@@ -22,17 +22,12 @@ class MarkDownView : Canvas
 
     this()
     {
-        string source = readText("resources/spec.md");
-        doc = parse(source);
         onDraw = &drawContent;
     }
 
     void drawContent(Painter pr, Size sz)
     {
         writeln("drawContent size = ", sz);
-        // content = new EditableContent;
-        // content.text = to!dstring(rendered);
-        // string rendered = defaultRenderer().render(parse(source));
         defaultRenderer().render(doc, pr, sz);
     }
 
@@ -40,8 +35,13 @@ class MarkDownView : Canvas
         return ContentRenderer.builder().build();
     }
 
-
     private Node parse(string source) {
         return Parser.builder().build().parse(source);
+    }
+
+    @property void filename(string filename)
+    {
+        string source = readText(filename);
+        doc = parse(source);
     }
 }

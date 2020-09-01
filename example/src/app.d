@@ -6,24 +6,28 @@ import beamui.widgets.markdownview;
 mixin RegisterPlatforms;
 
 
-int main()
+int main(string[] args)
 {
     // initialize library
     GuiApp app;
     if (!app.initialize())
         return -1;
 
-	// view the hardcoded CSS string as an embedded resource
+    if (args.length > 1)
+        data.filename = args[1];
+    else
+        data.filename = "resources/spec.txt";
+
+    // view the hardcoded CSS string as an embedded resource
     resourceList.embedFromMemory("_styles_.css", css);
-	// setup a better theme and our stylesheet
+    // setup a better theme and our stylesheet
     platform.stylesheets = [StyleResource("light"), StyleResource("_styles_")];
 
     Window window = platform.createWindow("MarkDownDemo");
 
-	// MarkDownView mdv = new MarkDownView();
-
-    // show it with the temperature converter as its main widget
+    // MarkDownView mdv = render!MarkDownView;
     window.show(() => render!MarkDownDemo);
+
     // run application event loop
     return platform.runEventLoop();
 }
@@ -41,11 +45,19 @@ MarkDownView {
 .error { border-color: red }
 `;
 
+struct AppData {
+    string filename;
+}
+
+AppData data;
+
 class MarkDownDemo : Panel
 {
     override void build()
     {
         MarkDownView md = render!MarkDownView;
+        md.filename = data.filename;
+
         wrap(
             render((Label lb) { lb.text = "Top"; }),
             md,
