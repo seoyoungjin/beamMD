@@ -16,12 +16,9 @@ import beamui.widgets.markdownview.renderer.CoreContentNodeRenderer;
 
 import hunt.collection.ArrayList;
 import hunt.collection.List;
-
-import hunt.util.Appendable;
 import hunt.util.Common;
-import hunt.util.StringBuilder;
 
-class ContentRenderer : Renderer {
+class ContentRenderer {
 
     private bool _stripNewlines;
 
@@ -35,7 +32,6 @@ class ContentRenderer : Renderer {
         // Add as last. This means clients can override the rendering of core nodes if they want.
         this.nodeRendererFactories.add(new class ContentNodeRendererFactory {
             override public NodeRenderer create(ContentNodeRendererContext context) {
-                writeln("context = ", context);
                 return new CoreContentNodeRenderer(context);
             }
         });
@@ -50,20 +46,9 @@ class ContentRenderer : Renderer {
         return new Builder();
     }
 
-    public void render(Node node, Appendable output) {
-        // RendererContext context = new RendererContext(new ContentWriter(output));
-        // context.render(node);
-    }
-
     public void render(Node node, Painter pr, Size sz) {
         RendererContext context = new RendererContext(new ContentWriter(pr, sz));
         context.render(node);
-    }
-
-    override public string render(Node node) {
-        StringBuilder sb = new StringBuilder();
-        render(node, sb);
-        return sb.toString();
     }
 
     /**

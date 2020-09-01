@@ -18,12 +18,11 @@ import beamui.widgets.markdownview.renderer.ContentRenderer;
 
 class MarkDownView : Canvas
 {
-    string source;
     Node doc;
 
     this()
     {
-        source = readText("resources/spec.md");
+        string source = readText("resources/spec.md");
         doc = parse(source);
         onDraw = &drawContent;
     }
