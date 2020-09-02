@@ -16,7 +16,7 @@ int main(string[] args)
     if (args.length > 1)
         data.filename = args[1];
     else
-        data.filename = "resources/spec.txt";
+        data.filename = "resources/spec.md";
 
     // view the hardcoded CSS string as an embedded resource
     resourceList.embedFromMemory("_styles_.css", css);
@@ -39,8 +39,8 @@ MarkDownDemo {
     padding: 12px;
 }
 MarkDownView {
-    width: 500px;
-    height: 400px;
+    min-width: 500px;
+    min-height: 400px;
 }
 .error { border-color: red }
 `;
@@ -57,6 +57,7 @@ class MarkDownDemo : Panel
     {
         MarkDownView md = render!MarkDownView;
         md.filename = data.filename;
+        md.attributes["stretch"];
 
         wrap(
             render((Label lb) { lb.text = "Top"; }),

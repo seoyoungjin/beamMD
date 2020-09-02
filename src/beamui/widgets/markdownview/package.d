@@ -8,8 +8,11 @@ import beamui.core.config;
 import beamui.widgets.widget;
 import beamui.widgets.controls;
 
+import hunt.collection.Collections;
 import hunt.markdown.node.Node;
 import hunt.markdown.parser.Parser;
+import hunt.markdown.ext.table;
+import hunt.markdown.ext.matter.YamlFrontMatterExtension;
 
 import beamui.widgets.markdownview.renderer.ContentRenderer;
 
@@ -32,11 +35,27 @@ class MarkDownView : Canvas
     }
 
     private ContentRenderer defaultRenderer() {
-        return ContentRenderer.builder().build();
+        auto frontmatter_ext = Collections.singleton(YamlFrontMatterExtension.create());
+        auto table_ext = Collections.singleton(TableExtension.create());
+        // LATER make extention
+        // auto renderer = ContentRenderer.builder().build();
+        auto renderer = ContentRenderer.builder()
+                .extensions(frontmatter_ext)
+                .extensions(table_ext)
+                .build();
+        return renderer;
     }
 
     private Node parse(string source) {
-        return Parser.builder().build().parse(source);
+        auto frontmatter_ext = Collections.singleton(YamlFrontMatterExtension.create());
+        auto table_ext = Collections.singleton(TableExtension.create());
+        Parser parser = Parser.builder()
+                .extensions(frontmatter_ext)
+                .extensions(table_ext)
+                .build();
+        // Parser parser = Parser.builder().build();
+        Node document = parser.parse(source);
+        return document;
     }
 
     @property void filename(string filename)

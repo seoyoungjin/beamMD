@@ -69,7 +69,6 @@ class CoreContentNodeRenderer : AbstractVisitor, NodeRenderer {
     }
 
     override public void visit(Document document) {
-        // No rendering itself
         visitChildren(document);
     }
 
