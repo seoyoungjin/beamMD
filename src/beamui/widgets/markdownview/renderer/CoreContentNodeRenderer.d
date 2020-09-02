@@ -8,9 +8,6 @@ import hunt.markdown.internal.renderer.text.BulletListHolder;
 import hunt.markdown.internal.renderer.text.ListHolder;
 import hunt.markdown.internal.renderer.text.OrderedListHolder;
 
-import beamui.widgets.markdownview.renderer.ContentNodeRendererContext;
-import beamui.widgets.markdownview.renderer.ContentWriter;
-
 import hunt.collection.HashSet;
 import hunt.collection.Set;
 import hunt.collection.Map;
@@ -20,8 +17,20 @@ import hunt.text;
 import hunt.util.StringBuilder;
 
 import std.stdio;
+import std.regex;
 import std.conv;
 
+import beamui.core.geometry : Point, Size;
+import beamui.graphics.colors;
+import beamui.graphics.painter : Painter;
+import beamui.text.fonts;
+import beamui.text.simple;
+import beamui.text.style;
+
+import beamui.widgets.markdownview.renderer.ContentNodeRendererContext;
+import beamui.widgets.markdownview.renderer.ContentWriter;
+
+// LATER
 import hunt.Char;
 alias Character = Char;
 /**
@@ -33,9 +42,26 @@ class CoreContentNodeRenderer : AbstractVisitor, NodeRenderer {
     private ContentWriter textContent;
     private ListHolder listHolder;
 
+    private Painter painter;
+    private Size viewport;
+    private Point current;
+    private TextStyle style;
+
     public this(ContentNodeRendererContext context) {
         this.context = context;
         this.textContent = context.getWriter();
+
+        // from writer
+        this.painter = context.painter();
+        this.viewport = context.viewport();
+        this.current.x = this.current.y = 0;
+
+        // LATER
+        style.font = FontManager.instance.getFont(FontSelector(FontFamily.serif, 10));
+        style.color = NamedColor.black;
+        style.decoration = TextDecor(TextDecorLine.none, style.color);
+        style.alignment = TextAlign.start;
+        style.wrap = true;
     }
 
     override public Set!TypeInfo_Class getNodeTypes() {
@@ -73,9 +99,15 @@ class CoreContentNodeRenderer : AbstractVisitor, NodeRenderer {
     }
 
     override public void visit(Heading heading) {
-        writeln("visit(heading)", heading.getLevel());
-        textContent.setHeadingStyle(heading.getLevel());
-        visitChildren(heading);
+        int[] sizes = [24, 24, 18, 16, 13, 11];
+        auto h = heading.getLevel();
+        writeln("visit(heading) ", h);
+        style.font = FontManager.instance.getFont(FontSelector(FontFamily.sans_serif, sizes[h]));
+        // textContent.setHeadingStyle(h);
+        // visitChildren(heading);
+        Node node = heading.getFirstChild();
+        assert(typeid(node) is typeid(Text) && node.getNext() is null);
+        context.render(node);
     }
 
     override public void visit(Paragraph paragraph) {
@@ -134,7 +166,8 @@ class CoreContentNodeRenderer : AbstractVisitor, NodeRenderer {
     }
 
     override public void visit(ThematicBreak thematicBreak) {
-        textContent.line();
+        painter.drawLine(0, current.y + 2, viewport.w, current.y + 2, NamedColor.black);
+        current.y += 5;
     }
 
     override public void visit(HtmlInline htmlInline) {
@@ -213,11 +246,18 @@ class CoreContentNodeRenderer : AbstractVisitor, NodeRenderer {
 
     // XXX
     private void writeText(string text) {
+        writeln(__FUNCTION__);
+        /*
         if (context.stripNewlines()) {
             textContent.writeStripped(text);
         } else {
             textContent.write(text);
         }
+        */
+        text = text.replaceAll(regex("[\\r\\n\\s]+"), " ");
+        int sz = style.font.size();
+        drawSimpleText(painter, to!dstring(text), current.x, current.y + sz, viewport.w, style);
+        current.y += sz;
     }
 
     private void writeLink(Node node, string title, string destination) {

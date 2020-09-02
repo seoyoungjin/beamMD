@@ -1,6 +1,8 @@
 module beamui.widgets.markdownview.renderer.ContentNodeRendererContext;
 
 import hunt.markdown.node.Node;
+import beamui.core.geometry : Size;
+import beamui.graphics.painter : Painter;
 import beamui.widgets.markdownview.renderer.ContentWriter;
 
 public interface ContentNodeRendererContext {
@@ -10,6 +12,16 @@ public interface ContentNodeRendererContext {
      * false for keeping all line breaks.
      */
     bool stripNewlines();
+
+    /**
+     * @return painter
+     */
+    Painter painter();
+
+    /**
+     * @return viewport size
+     */
+    Size viewport();
 
     /**
      * @return the writer to use

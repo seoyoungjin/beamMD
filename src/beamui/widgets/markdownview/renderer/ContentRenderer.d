@@ -1,13 +1,15 @@
 module beamui.widgets.markdownview.renderer.ContentRenderer;
 
 import std.stdio;
-import beamui;
 
 import hunt.markdown.Extension;
 import hunt.markdown.internal.renderer.NodeRendererMap;
 import hunt.markdown.node.Node;
 import hunt.markdown.renderer.NodeRenderer;
 import hunt.markdown.renderer.Renderer;
+
+import beamui.core.geometry : Size;
+import beamui.graphics.painter : Painter;
 
 import beamui.widgets.markdownview.renderer.ContentWriter;
 import beamui.widgets.markdownview.renderer.ContentNodeRendererFactory;
@@ -20,13 +22,9 @@ import hunt.util.Common;
 
 class ContentRenderer {
 
-    private bool _stripNewlines;
-
     private List!(ContentNodeRendererFactory) nodeRendererFactories;
 
     private this(Builder builder) {
-        this._stripNewlines = builder._stripNewlines;
-
         this.nodeRendererFactories = new ArrayList!ContentNodeRendererFactory(builder.nodeRendererFactories.size() + 1);
         this.nodeRendererFactories.addAll(builder.nodeRendererFactories);
         // Add as last. This means clients can override the rendering of core nodes if they want.
@@ -47,7 +45,7 @@ class ContentRenderer {
     }
 
     public void render(Node node, Painter pr, Size sz) {
-        RendererContext context = new RendererContext(new ContentWriter(pr, sz));
+        RendererContext context = new RendererContext(new ContentWriter(pr, sz), pr, sz);
         context.render(node);
     }
 
@@ -56,7 +54,6 @@ class ContentRenderer {
      */
     public static class Builder {
 
-        private bool _stripNewlines = false;
         private List!(ContentNodeRendererFactory) nodeRendererFactories;
 
         this()
@@ -69,18 +66,6 @@ class ContentRenderer {
          */
         public ContentRenderer build() {
             return new ContentRenderer(this);
-        }
-
-        /**
-         * Set the value of flag for stripping new lines.
-         *
-         * @param stripNewlines true for stripping new lines and render text as "single line",
-         *                      false for keeping all line breaks
-         * @return {@code this}
-         */
-        public Builder stripNewlines(bool stripNewlines) {
-            this._stripNewlines = stripNewlines;
-            return this;
         }
 
         /**
@@ -122,12 +107,16 @@ class ContentRenderer {
     }
 
     private class RendererContext : ContentNodeRendererContext {
-        private ContentWriter textContentWriter;
         private NodeRendererMap nodeRendererMap;
+        private ContentWriter textContentWriter;
+        private Painter _painter;
+        private Size _size;
 
-        private this(ContentWriter textContentWriter) {
+        private this(ContentWriter textContentWriter, Painter pr, Size sz) {
             nodeRendererMap = new NodeRendererMap();
             this.textContentWriter = textContentWriter;
+            this._painter = pr;
+            this._size = sz;
 
             // The first node renderer for a node type "wins".
             for (int i = nodeRendererFactories.size() - 1; i >= 0; i--) {
@@ -138,7 +127,16 @@ class ContentRenderer {
         }
 
         override public bool stripNewlines() {
-            return _stripNewlines;
+            // return _stripNewlines;
+            return true;
+        }
+
+        override public Painter painter() {
+            return _painter;
+        }
+
+        override public Size viewport() {
+            return _size;
         }
 
         override public ContentWriter getWriter() {

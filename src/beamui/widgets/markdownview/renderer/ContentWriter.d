@@ -45,7 +45,10 @@ class ContentWriter {
 
     public void writeStripped(string s) {
         writeln(__FUNCTION__);
-        // append(s.replaceAll(regex("[\\r\\n\\s]+"), " "));
+        s = s.replaceAll(regex("[\\r\\n\\s]+"), " ");
+        int sz = style.font.size();
+        drawSimpleText(painter, to!dstring(s), current.x, current.y + sz, size.w, style);
+        current.y += sz;
     }
 
     public void write(string s) {
