@@ -22,7 +22,7 @@ TBD
 Screen Shot
 -----------
 
-TBD
+![2020-09-03](screenshot/20200903.png)
 
 Tricks
 ------

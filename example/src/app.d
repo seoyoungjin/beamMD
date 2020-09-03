@@ -39,7 +39,8 @@ MarkDownDemo {
     padding: 12px;
 }
 MarkDownView {
-    min-width: 500px;
+    width: 500px;
+    min-width: 100;
     min-height: 400px;
 }
 .error { border-color: red }

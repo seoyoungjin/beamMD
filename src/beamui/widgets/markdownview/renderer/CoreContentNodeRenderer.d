@@ -28,6 +28,11 @@ import beamui.text.style;
 
 import beamui.widgets.markdownview.renderer.ContentNodeRendererContext;
 
+const int DEFAULT_FONT_SIZE = 16;
+const float[] HEADING_FONT_SIZES = [32, 24, 18.72, 16, 13.28, 10.72];
+const int HEADING_UPPPER_SPACE = 3;
+const int HEADING_UNDER_SPACE = 5;
+
 /**
  * The node renderer that renders all the core nodes (comes last in the order of node renderers).
  */
@@ -49,7 +54,7 @@ class CoreContentNodeRenderer : AbstractVisitor, NodeRenderer {
         this.current.x = this.current.y = 0;
 
         // LATER
-        style.font = FontManager.instance.getFont(FontSelector(FontFamily.serif, 10));
+        style.font = FontManager.instance.getFont(FontSelector(FontFamily.serif, DEFAULT_FONT_SIZE));
         style.color = NamedColor.black;
         style.decoration = TextDecor(TextDecorLine.none, style.color);
         style.alignment = TextAlign.start;
@@ -87,22 +92,27 @@ class CoreContentNodeRenderer : AbstractVisitor, NodeRenderer {
     }
 
     override public void visit(Document document) {
+        painter.drawLine(0, current.y, viewport.w, current.y, NamedColor.red); // DEBUG
         visitChildren(document);
     }
 
     override public void visit(Heading heading) {
-        int[] sizes = [24, 24, 18, 16, 13, 11];
         auto h = heading.getLevel();
         writeln("visit(heading) ", h);
-        // textContent.setHeadingStyle(h);
-        // visitChildren(heading);
-        style.font = FontManager.instance.getFont(FontSelector(FontFamily.sans_serif, sizes[h]));
+
+        int size = cast(int)(DEFAULT_FONT_SIZE * HEADING_FONT_SIZES[h] / 10 + 0.5);
+        // style.font = FontManager.instance.getFont(FontSelector(FontFamily.sans_serif, size));
+        style.font = FontManager.instance.getFont(FontSelector(FontFamily.sans_serif, size));
         Node node = heading.getFirstChild();
         assert(typeid(node) is typeid(Text) && node.getNext() is null);
         context.render(node);
+        current.y += HEADING_UNDER_SPACE;
+        painter.drawLine(0, current.y, viewport.w, current.y, NamedColor.red); // DEBUG
     }
 
     override public void visit(Paragraph paragraph) {
+        writeln(">>> Paragraph");
+        style.font = FontManager.instance.getFont(FontSelector(FontFamily.sans_serif, DEFAULT_FONT_SIZE));
         // bool inTightList = isInTightList(paragraph);
         // if (!inTightList) {
         //     html.line();
@@ -113,6 +123,7 @@ class CoreContentNodeRenderer : AbstractVisitor, NodeRenderer {
         //     html.tag("/p");
         //     html.line();
         // }
+        writeln("<<< Paragraph");
     }
 
     override public void visit(BlockQuote blockQuote) {
@@ -170,11 +181,11 @@ class CoreContentNodeRenderer : AbstractVisitor, NodeRenderer {
     }
 
     override public void visit(HtmlInline htmlInline) {
-        writeText(htmlInline.getLiteral());
+        drawText(htmlInline.getLiteral());
     }
 
     override public void visit(HtmlBlock htmlBlock) {
-        writeText(htmlBlock.getLiteral());
+        drawText(htmlBlock.getLiteral());
     }
 
     override public void visit(Image image) {
@@ -242,7 +253,7 @@ class CoreContentNodeRenderer : AbstractVisitor, NodeRenderer {
     }
 
     override public void visit(Text text) {
-        writeText(text.getLiteral());
+        drawText(text.getLiteral());
     }
 
     override protected void visitChildren(Node parent) {
@@ -254,20 +265,22 @@ class CoreContentNodeRenderer : AbstractVisitor, NodeRenderer {
         }
     }
 
-    // XXX
-    private void writeText(string text) {
+    private void drawText(string text) {
         writeln(__FUNCTION__);
-        /*
-        if (context.stripNewlines()) {
-            textContent.writeStripped(text);
-        } else {
-            textContent.write(text);
-        }
-        */
-        text = text.replaceAll(regex("[\\r\\n\\s]+"), " ");
-        int sz = style.font.size();
-        drawSimpleText(painter, to!dstring(text), current.x, current.y + sz, viewport.w, style);
-        current.y += sz;
+        dstring str = to!dstring(text);
+
+        if (str.length == 0)
+            return;
+
+        SimpleText *txt = new SimpleText(str);
+        txt.style = style;
+        txt.measure();
+        if (style.wrap)
+            txt.wrap(viewport.w);
+        txt.draw(painter, current.x, current.y, viewport.w);
+
+        current.x = 0; // XXX
+        current.y += txt.sizeAfterWrap.h;
     }
 
     private void writeLink(Node node, string title, string destination) {
