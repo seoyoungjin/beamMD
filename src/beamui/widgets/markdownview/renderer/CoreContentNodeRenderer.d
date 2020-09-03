@@ -14,7 +14,6 @@ import hunt.collection.Map;
 import hunt.collection.LinkedHashMap;
 import hunt.collection.Collections;
 import hunt.text;
-import hunt.util.StringBuilder;
 
 import std.stdio;
 import std.regex;
@@ -28,18 +27,13 @@ import beamui.text.simple;
 import beamui.text.style;
 
 import beamui.widgets.markdownview.renderer.ContentNodeRendererContext;
-import beamui.widgets.markdownview.renderer.ContentWriter;
 
-// LATER
-import hunt.Char;
-alias Character = Char;
 /**
  * The node renderer that renders all the core nodes (comes last in the order of node renderers).
  */
 class CoreContentNodeRenderer : AbstractVisitor, NodeRenderer {
 
     protected ContentNodeRendererContext context;
-    private ContentWriter textContent;
     private ListHolder listHolder;
 
     private Painter painter;
@@ -49,9 +43,7 @@ class CoreContentNodeRenderer : AbstractVisitor, NodeRenderer {
 
     public this(ContentNodeRendererContext context) {
         this.context = context;
-        this.textContent = context.getWriter();
 
-        // from writer
         this.painter = context.painter();
         this.viewport = context.viewport();
         this.current.x = this.current.y = 0;
@@ -90,7 +82,7 @@ class CoreContentNodeRenderer : AbstractVisitor, NodeRenderer {
     }
 
     public void render(Node node) {
-        writeln("render(node)", node);
+        writeln("render(node) ", node);
         node.accept(this);
     }
 
@@ -102,9 +94,9 @@ class CoreContentNodeRenderer : AbstractVisitor, NodeRenderer {
         int[] sizes = [24, 24, 18, 16, 13, 11];
         auto h = heading.getLevel();
         writeln("visit(heading) ", h);
-        style.font = FontManager.instance.getFont(FontSelector(FontFamily.sans_serif, sizes[h]));
         // textContent.setHeadingStyle(h);
         // visitChildren(heading);
+        style.font = FontManager.instance.getFont(FontSelector(FontFamily.sans_serif, sizes[h]));
         Node node = heading.getFirstChild();
         assert(typeid(node) is typeid(Text) && node.getNext() is null);
         context.render(node);
@@ -146,26 +138,33 @@ class CoreContentNodeRenderer : AbstractVisitor, NodeRenderer {
     }
 
     override public void visit(Code code) {
-        writeln("visit(code)", code);
+        writeln("visit(code) ", code);
         // textContent.write('\"');
-        textContent.write(code.getLiteral());
+        // textContent.write(code.getLiteral());
         // textContent.write('\"');
     }
 
     override public void visit(FencedCodeBlock fencedCodeBlock) {
+        writeln("visit(FencedCodeBlock) ", fencedCodeBlock);
+        /*
         if (context.stripNewlines()) {
             textContent.writeStripped(fencedCodeBlock.getLiteral());
             writeEndOfLineIfNeeded(fencedCodeBlock, null);
         } else {
             textContent.write(fencedCodeBlock.getLiteral());
         }
+        */
     }
 
     override public void visit(HardLineBreak hardLineBreak) {
+        writeln("visit(HardLineBreak) ", hardLineBreak);
+/*
         writeEndOfLineIfNeeded(hardLineBreak, null);
+*/
     }
 
     override public void visit(ThematicBreak thematicBreak) {
+        writeln("visit(ThematicBreak) ", thematicBreak);
         painter.drawLine(0, current.y + 2, viewport.w, current.y + 2, NamedColor.black);
         current.y += 5;
     }
@@ -183,19 +182,25 @@ class CoreContentNodeRenderer : AbstractVisitor, NodeRenderer {
     }
 
     override public void visit(IndentedCodeBlock indentedCodeBlock) {
+        writeln("visit(IndentedCodeBlock) ", indentedCodeBlock);
+/*
         if (context.stripNewlines()) {
             textContent.writeStripped(indentedCodeBlock.getLiteral());
             writeEndOfLineIfNeeded(indentedCodeBlock, null);
         } else {
             textContent.write(indentedCodeBlock.getLiteral());
         }
+*/
     }
 
     override public void visit(Link link) {
+        writeln("visit(Link) ", link);
         writeLink(link, link.getTitle(), link.getDestination());
     }
 
     override public void visit(ListItem listItem) {
+        writeln("visit(ListItem) ", listItem);
+/*
         if (listHolder !is null && cast(OrderedListHolder)listHolder !is null) {
             OrderedListHolder orderedListHolder = cast(OrderedListHolder) listHolder;
             string indent = context.stripNewlines() ? "" : orderedListHolder.getIndent();
@@ -211,9 +216,11 @@ class CoreContentNodeRenderer : AbstractVisitor, NodeRenderer {
             visitChildren(listItem);
             writeEndOfLineIfNeeded(listItem, null);
         }
+*/
     }
 
     override public void visit(OrderedList orderedList) {
+/*
         if (listHolder !is null) {
             writeEndOfLine();
         }
@@ -225,10 +232,13 @@ class CoreContentNodeRenderer : AbstractVisitor, NodeRenderer {
         } else {
             listHolder = null;
         }
+*/
     }
 
     override public void visit(SoftLineBreak softLineBreak) {
+/*
         writeEndOfLineIfNeeded(softLineBreak, null);
+*/
     }
 
     override public void visit(Text text) {
@@ -294,22 +304,6 @@ class CoreContentNodeRenderer : AbstractVisitor, NodeRenderer {
 */
     }
 
-    private void writeEndOfLineIfNeeded(Node node, Character c) {
-/*
-        if (context.stripNewlines()) {
-            if (c !is null) {
-                textContent.write(c.charValue);
-            }
-            if (node.getNext() !is null) {
-                textContent.whitespace();
-            }
-        } else {
-            if (node.getNext() !is null) {
-                textContent.line();
-            }
-        }
-*/
-    }
 
     private void writeEndOfLine() {
 /*

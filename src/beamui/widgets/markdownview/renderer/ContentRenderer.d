@@ -11,7 +11,6 @@ import hunt.markdown.renderer.Renderer;
 import beamui.core.geometry : Size;
 import beamui.graphics.painter : Painter;
 
-import beamui.widgets.markdownview.renderer.ContentWriter;
 import beamui.widgets.markdownview.renderer.ContentNodeRendererFactory;
 import beamui.widgets.markdownview.renderer.ContentNodeRendererContext;
 import beamui.widgets.markdownview.renderer.CoreContentNodeRenderer;
@@ -45,7 +44,7 @@ class ContentRenderer {
     }
 
     public void render(Node node, Painter pr, Size sz) {
-        RendererContext context = new RendererContext(new ContentWriter(pr, sz), pr, sz);
+        RendererContext context = new RendererContext(pr, sz);
         context.render(node);
     }
 
@@ -108,13 +107,11 @@ class ContentRenderer {
 
     private class RendererContext : ContentNodeRendererContext {
         private NodeRendererMap nodeRendererMap;
-        private ContentWriter textContentWriter;
         private Painter _painter;
         private Size _size;
 
-        private this(ContentWriter textContentWriter, Painter pr, Size sz) {
+        private this(Painter pr, Size sz) {
             nodeRendererMap = new NodeRendererMap();
-            this.textContentWriter = textContentWriter;
             this._painter = pr;
             this._size = sz;
 
@@ -126,21 +123,12 @@ class ContentRenderer {
             }
         }
 
-        override public bool stripNewlines() {
-            // return _stripNewlines;
-            return true;
-        }
-
         override public Painter painter() {
             return _painter;
         }
 
         override public Size viewport() {
             return _size;
-        }
-
-        override public ContentWriter getWriter() {
-            return textContentWriter;
         }
 
         public void render(Node node) {
