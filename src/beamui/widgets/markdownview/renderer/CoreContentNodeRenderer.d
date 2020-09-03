@@ -23,6 +23,7 @@ import beamui.core.geometry : Point, Size;
 import beamui.graphics.colors;
 import beamui.graphics.painter : Painter;
 import beamui.text.fonts;
+import beamui.text.line;
 import beamui.text.simple;
 import beamui.text.style;
 
@@ -97,11 +98,11 @@ class CoreContentNodeRenderer : AbstractVisitor, NodeRenderer {
     }
 
     override public void visit(Heading heading) {
+        writeln("visit(heading) ", heading.getLevel());
         auto h = heading.getLevel();
-        writeln("visit(heading) ", h);
-
         int size = cast(int)(DEFAULT_FONT_SIZE * HEADING_FONT_SIZES[h] / 10 + 0.5);
-        // style.font = FontManager.instance.getFont(FontSelector(FontFamily.sans_serif, size));
+
+        current.x = 0;
         style.font = FontManager.instance.getFont(FontSelector(FontFamily.sans_serif, size));
         Node node = heading.getFirstChild();
         assert(typeid(node) is typeid(Text) && node.getNext() is null);
@@ -112,17 +113,9 @@ class CoreContentNodeRenderer : AbstractVisitor, NodeRenderer {
 
     override public void visit(Paragraph paragraph) {
         writeln(">>> Paragraph");
+        current.x = 0;
         style.font = FontManager.instance.getFont(FontSelector(FontFamily.sans_serif, DEFAULT_FONT_SIZE));
-        // bool inTightList = isInTightList(paragraph);
-        // if (!inTightList) {
-        //     html.line();
-        //    html.tag("p", getAttrs(paragraph, "p"));
-        // }
         visitChildren(paragraph);
-        // if (!inTightList) {
-        //     html.tag("/p");
-        //     html.line();
-        // }
         writeln("<<< Paragraph");
     }
 
@@ -247,9 +240,10 @@ class CoreContentNodeRenderer : AbstractVisitor, NodeRenderer {
     }
 
     override public void visit(SoftLineBreak softLineBreak) {
-/*
-        writeEndOfLineIfNeeded(softLineBreak, null);
-*/
+        const spaceWidth = style.font.spaceWidth;
+        // DEBUG
+        painter.fillRect(current.x, current.y, spaceWidth, style.font.height, NamedColor.yellow);
+        current.x += spaceWidth;
     }
 
     override public void visit(Text text) {
@@ -272,15 +266,18 @@ class CoreContentNodeRenderer : AbstractVisitor, NodeRenderer {
         if (str.length == 0)
             return;
 
-        SimpleText *txt = new SimpleText(str);
-        txt.style = style;
-        txt.measure();
+        TextLine txt = TextLine(str);
+        auto layoutStyle = TextLayoutStyle(style);
+        txt.measure(layoutStyle);
         if (style.wrap)
             txt.wrap(viewport.w);
-        txt.draw(painter, current.x, current.y, viewport.w);
+        txt.draw(painter, current.x, current.y, viewport.w, style);
 
-        current.x = 0; // XXX
-        current.y += txt.sizeAfterWrap.h;
+        if (txt.wrapped is true)
+            current.x += txt.wrapSpans[txt.wrapSpans.length - 1].width;
+        else
+            current.x += txt.size.w;
+        current.y +=  txt.height;
     }
 
     private void writeLink(Node node, string title, string destination) {
