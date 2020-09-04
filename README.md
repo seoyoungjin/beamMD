@@ -15,15 +15,15 @@ BeamUI markdown viewer.
 
 ## TODO
 
-- [] lists
-- [] image view
-- [] css
+- [ ] lists
+- [ ] image view
+- [ ] css
 
 ## Long Term
 
-- [] HarfBuzz (?)
-- [] http image download (?)
-- [] tooltip on URL (?)
+- [ ] HarfBuzz (?)
+- [ ] http image download (?)
+- [ ] tooltip on URL (?)
 
 Screen Shot
 -----------

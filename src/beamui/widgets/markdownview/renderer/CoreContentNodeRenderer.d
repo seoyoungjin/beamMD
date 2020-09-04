@@ -248,8 +248,9 @@ class CoreContentNodeRenderer : AbstractVisitor, NodeRenderer {
 
     override public void visit(SoftLineBreak softLineBreak) {
         const spaceWidth = style.font.spaceWidth;
+        const h = style.font.height;
         // DEBUG
-        painter.fillRect(current.x, current.y, spaceWidth, style.font.height, NamedColor.yellow);
+        painter.fillRect(current.x, current.y - h, spaceWidth, h, NamedColor.yellow);
         current.x += spaceWidth;
     }
 
@@ -296,11 +297,17 @@ class CoreContentNodeRenderer : AbstractVisitor, NodeRenderer {
         auto layoutStyle = TextLayoutStyle(style);
         txt.measure(layoutStyle);
         if (style.wrap)
-            txt.wrap(viewport.w);
+            txt.wrap(current.x, viewport.w);
+        // connect to upper line
+/*
+        if (current.x != 0.0)
+            current.y -= style.font.height;
+*/
         txt.draw(painter, current.x, current.y, viewport.w, style);
 
         if (txt.wrapped is true)
-            current.x += txt.wrapSpans[txt.wrapSpans.length - 1].width;
+            // 
+            current.x += txt.wrapSpans[txt.wrapSpans.length - 1].width - current.x;
         else
             current.x += txt.size.w;
         current.y +=  txt.height;

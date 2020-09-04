@@ -6,7 +6,7 @@ Authors:   dayllenger
 */
 module beamui.widgets.markdownview.renderer.textline;
 
-
+import std.stdio;
 import std.ascii : isWhite;
 import std.container.array;
 import beamui.core.collections : Buf;
@@ -142,7 +142,7 @@ struct TextLine2
         _defaultSpan.height = max(_defaultSpan.height, height);
     }
 
-    float wrap(float boxWidth)
+    float wrap(float xstart, float boxWidth)
     {
         assert(measured);
 
@@ -162,10 +162,10 @@ struct TextLine2
 
         const pstr = str.ptr;
         int totalHeight;
-        float lineWidth = 0;
+        float lineWidth = xstart;
         int lineHeight;
         uint lineStart, lastWordEnd;
-        float lastWordEndX = 0;
+        float lastWordEndX = xstart;
         bool whitespace;
         for (uint i; i < len; i++)
         {
@@ -372,6 +372,8 @@ struct TextLine2
 
             if (j > 0)
             {
+                // start from 0.0
+                linePos.x = 0;
                 xpen = snapToDevicePixels(span.offset);
                 ypen += span.height;
             }
