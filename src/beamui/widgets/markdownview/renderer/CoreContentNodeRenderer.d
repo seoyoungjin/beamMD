@@ -27,12 +27,15 @@ import beamui.text.line;
 import beamui.text.simple;
 import beamui.text.style;
 
+import beamui.widgets.markdownview.renderer.textline;
 import beamui.widgets.markdownview.renderer.ContentNodeRendererContext;
 
 const int DEFAULT_FONT_SIZE = 16;
 const float[] HEADING_FONT_SIZES = [32, 24, 18.72, 16, 13.28, 10.72];
-const int HEADING_UPPPER_SPACE = 3;
-const int HEADING_UNDER_SPACE = 5;
+const int HEADING_UPPER_MARGIN = 3;
+const int HEADING_UNDER_MARGIN = 5;
+const int PARAGRAPH_UPPER_MARGIN = 3;
+const int PARAGRAPH_UNDER_MARGIN = 3;
 
 /**
  * The node renderer that renders all the core nodes (comes last in the order of node renderers).
@@ -103,19 +106,23 @@ class CoreContentNodeRenderer : AbstractVisitor, NodeRenderer {
         int size = cast(int)(DEFAULT_FONT_SIZE * HEADING_FONT_SIZES[h] / 10 + 0.5);
 
         current.x = 0;
+        TextStyle oldStyle = style;
         style.font = FontManager.instance.getFont(FontSelector(FontFamily.sans_serif, size));
-        Node node = heading.getFirstChild();
-        assert(typeid(node) is typeid(Text) && node.getNext() is null);
-        context.render(node);
-        current.y += HEADING_UNDER_SPACE;
+        visitChildren(heading);
+        style = oldStyle;
+        current.y += HEADING_UNDER_MARGIN;
         painter.drawLine(0, current.y, viewport.w, current.y, NamedColor.red); // DEBUG
     }
 
     override public void visit(Paragraph paragraph) {
         writeln(">>> Paragraph");
         current.x = 0;
+        TextStyle oldStyle = style;
         style.font = FontManager.instance.getFont(FontSelector(FontFamily.sans_serif, DEFAULT_FONT_SIZE));
         visitChildren(paragraph);
+        style = oldStyle;
+        current.y += PARAGRAPH_UNDER_MARGIN;
+        painter.drawLine(0, current.y, viewport.w, current.y, NamedColor.red); // DEBUG
         writeln("<<< Paragraph");
     }
 
@@ -246,6 +253,25 @@ class CoreContentNodeRenderer : AbstractVisitor, NodeRenderer {
         current.x += spaceWidth;
     }
 
+    override public void visit(Emphasis emphasis) {
+        writeln("visit(Emphasis) ", emphasis.getOpeningDelimiter());
+        TextStyle oldStyle = style;
+        const Font f = style.font;
+        // style.font = FontManager.instance.getFont(FontSelector(f.family, f.size, FontStyle.italic, f.weight));
+        style.font = FontManager.instance.getFont(FontSelector(f.family, f.size, FontStyle.italic));
+        visitChildren(emphasis);
+        style = oldStyle;
+    }
+
+    override public void visit(StrongEmphasis emphasis) {
+        writeln("visit(StrongEmphasis) ", emphasis.getOpeningDelimiter());
+        TextStyle oldStyle = style;
+        const Font f = style.font;
+        style.font = FontManager.instance.getFont(FontSelector(f.family, f.size, f.italic, FontWeight.bold));
+        visitChildren(emphasis);
+        style = oldStyle;
+    }
+
     override public void visit(Text text) {
         drawText(text.getLiteral());
     }
@@ -266,7 +292,7 @@ class CoreContentNodeRenderer : AbstractVisitor, NodeRenderer {
         if (str.length == 0)
             return;
 
-        TextLine txt = TextLine(str);
+        TextLine2 txt = TextLine2(str);
         auto layoutStyle = TextLayoutStyle(style);
         txt.measure(layoutStyle);
         if (style.wrap)

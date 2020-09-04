@@ -3,8 +3,6 @@ BeamUI Markdown widget
 
 BeamUI markdown viewer.
 
-This is just started.
-
 ## System and Tools Version
 
 - Linux
@@ -17,7 +15,15 @@ This is just started.
 
 ## TODO
 
-TBD
+- [] lists
+- [] image view
+- [] css
+
+## Long Term
+
+- [] HarfBuzz (?)
+- [] http image download (?)
+- [] tooltip on URL (?)
 
 Screen Shot
 -----------
