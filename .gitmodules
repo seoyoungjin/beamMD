@@ -1,3 +1,0 @@
-[submodule "deps/HuntMarkdown"]
-	path = deps/HuntMarkdown
-	url = https://github.com/huntlabs/hunt-markdown.git

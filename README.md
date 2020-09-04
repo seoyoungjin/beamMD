@@ -17,13 +17,16 @@ BeamUI markdown viewer.
 
 - [ ] lists
 - [ ] image view
+- [ ] table
+- [ ] front matter
 - [ ] css
 
 ## Long Term
 
-- [ ] HarfBuzz (?)
-- [ ] http image download (?)
-- [ ] tooltip on URL (?)
+- [ ] HarfBuzz
+- [ ] http image download
+- [ ] tooltip on URL
+- [ ] Syntax hilight
 
 Screen Shot
 -----------

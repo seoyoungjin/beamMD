@@ -79,10 +79,6 @@ struct TextLine2
         this.str = str;
     }
 
-    this(this) // FIXME: doesn't link without it
-    {
-    }
-
     void measure(ref TextLayoutStyle style)
     {
         assert(style.font, "Font is mandatory");
@@ -142,6 +138,11 @@ struct TextLine2
         _defaultSpan.height = max(_defaultSpan.height, height);
     }
 
+    float wrap(float boxWidth)
+    {
+        return wrap(0.0, boxWidth);
+    }
+
     float wrap(float xstart, float boxWidth)
     {
         assert(measured);
@@ -157,7 +158,7 @@ struct TextLine2
             return _defaultSpan.height;
         if (boxWidth <= 0)
             return _defaultSpan.height;
-        if (_defaultSpan.width <= boxWidth)
+        if (xstart + _defaultSpan.width <= boxWidth)
             return _defaultSpan.height;
 
         const pstr = str.ptr;
@@ -166,7 +167,7 @@ struct TextLine2
         int lineHeight;
         uint lineStart, lastWordEnd;
         float lastWordEndX = xstart;
-        bool whitespace;
+        bool whitespace = false;
         for (uint i; i < len; i++)
         {
             const dchar ch = pstr[i];
@@ -264,19 +265,6 @@ struct TextLine2
         return 0;
     }
 
-    private bool drawFragmentNonWrapped(Painter pr, Point linePos, float boxWidth, ref float offset, ref uint i, ref uint start,
-            uint end, TextStyle prevStyle)
-    {
-        TextStyle nextStyle = void;
-        if (start < end)
-        {
-            if (drawSimpleFragmentNonWrapped(pr, linePos, boxWidth, offset, start, end, prevStyle))
-                return true;
-            start = end;
-        }
-        return false;
-    }
-
     private bool drawSimpleFragmentNonWrapped(Painter pr, Point linePos, float boxWidth, ref float offset, uint start,
             uint end, ref TextStyle style)
     {
@@ -372,7 +360,7 @@ struct TextLine2
 
             if (j > 0)
             {
-                // start from 0.0
+                // yjseo - start from 0 from 2nd line
                 linePos.x = 0;
                 xpen = snapToDevicePixels(span.offset);
                 ypen += span.height;

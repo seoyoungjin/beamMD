@@ -39,6 +39,7 @@ MarkDownDemo {
     padding: 12px;
 }
 MarkDownView {
+    background-color: #ffffff;
     width: 500px;
     min-width: 100;
     min-height: 400px;

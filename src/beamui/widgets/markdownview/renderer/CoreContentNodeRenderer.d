@@ -30,7 +30,7 @@ import beamui.text.style;
 import beamui.widgets.markdownview.renderer.textline;
 import beamui.widgets.markdownview.renderer.ContentNodeRendererContext;
 
-const int DEFAULT_FONT_SIZE = 16;
+const int DEFAULT_FONT_SIZE = 14;
 const float[] HEADING_FONT_SIZES = [32, 24, 18.72, 16, 13.28, 10.72];
 const int HEADING_UPPER_MARGIN = 3;
 const int HEADING_UNDER_MARGIN = 5;
@@ -91,7 +91,7 @@ class CoreContentNodeRenderer : AbstractVisitor, NodeRenderer {
     }
 
     public void render(Node node) {
-        writeln("render(node) ", node);
+        // writeln("render(node) ", node);
         node.accept(this);
     }
 
@@ -149,10 +149,13 @@ class CoreContentNodeRenderer : AbstractVisitor, NodeRenderer {
     }
 
     override public void visit(Code code) {
-        writeln("visit(code) ", code);
-        // textContent.write('\"');
-        // textContent.write(code.getLiteral());
-        // textContent.write('\"');
+        writeln("visit(code) ", code.getLiteral());
+        TextStyle oldStyle = style;
+        const Font f = style.font;
+        style.font = FontManager.instance.getFont(FontSelector(FontFamily.monospace, f.size));
+        style.background = NamedColor.light_gray;
+        drawText(code.getLiteral());
+        style = oldStyle;
     }
 
     override public void visit(FencedCodeBlock fencedCodeBlock) {
@@ -189,7 +192,7 @@ class CoreContentNodeRenderer : AbstractVisitor, NodeRenderer {
     }
 
     override public void visit(Image image) {
-        writeLink(image, image.getTitle(), image.getDestination());
+        drawLink(image, image.getTitle(), image.getDestination());
     }
 
     override public void visit(IndentedCodeBlock indentedCodeBlock) {
@@ -206,7 +209,11 @@ class CoreContentNodeRenderer : AbstractVisitor, NodeRenderer {
 
     override public void visit(Link link) {
         writeln("visit(Link) ", link);
-        writeLink(link, link.getTitle(), link.getDestination());
+        TextStyle oldStyle = style;
+        style.color = NamedColor.blue;
+        style.decoration = TextDecor(TextDecorLine.under, style.color);
+        drawLink(link, link.getTitle(), link.getDestination());
+        style = oldStyle;
     }
 
     override public void visit(ListItem listItem) {
@@ -248,9 +255,10 @@ class CoreContentNodeRenderer : AbstractVisitor, NodeRenderer {
 
     override public void visit(SoftLineBreak softLineBreak) {
         const spaceWidth = style.font.spaceWidth;
-        const h = style.font.height;
+        const h = style.font.height / 2;
         // DEBUG
-        painter.fillRect(current.x, current.y - h, spaceWidth, h, NamedColor.yellow);
+        painter.fillRect(current.x, current.y - 1.5 * h, spaceWidth, h,
+                NamedColor.yellow);
         current.x += spaceWidth;
     }
 
@@ -258,8 +266,7 @@ class CoreContentNodeRenderer : AbstractVisitor, NodeRenderer {
         writeln("visit(Emphasis) ", emphasis.getOpeningDelimiter());
         TextStyle oldStyle = style;
         const Font f = style.font;
-        // style.font = FontManager.instance.getFont(FontSelector(f.family, f.size, FontStyle.italic, f.weight));
-        style.font = FontManager.instance.getFont(FontSelector(f.family, f.size, FontStyle.italic));
+        style.font = FontManager.instance.getFont(FontSelector(f.family, f.size, FontStyle.italic, f.weight));
         visitChildren(emphasis);
         style = oldStyle;
     }
@@ -274,6 +281,7 @@ class CoreContentNodeRenderer : AbstractVisitor, NodeRenderer {
     }
 
     override public void visit(Text text) {
+        writeln("visit(Text) ", text.getLiteral());
         drawText(text.getLiteral());
     }
 
@@ -287,7 +295,6 @@ class CoreContentNodeRenderer : AbstractVisitor, NodeRenderer {
     }
 
     private void drawText(string text) {
-        writeln(__FUNCTION__);
         dstring str = to!dstring(text);
 
         if (str.length == 0)
@@ -298,63 +305,35 @@ class CoreContentNodeRenderer : AbstractVisitor, NodeRenderer {
         txt.measure(layoutStyle);
         if (style.wrap)
             txt.wrap(current.x, viewport.w);
+        // LATER - more elegant way
         // connect to upper line
-/*
         if (current.x != 0.0)
             current.y -= style.font.height;
-*/
         txt.draw(painter, current.x, current.y, viewport.w, style);
 
         if (txt.wrapped is true)
-            // 
-            current.x += txt.wrapSpans[txt.wrapSpans.length - 1].width - current.x;
+            current.x = txt.wrapSpans[txt.wrapSpans.length - 1].width;
         else
             current.x += txt.size.w;
         current.y +=  txt.height;
     }
 
-    private void writeLink(Node node, string title, string destination) {
+    private void drawLink(Node node, string title, string destination) {
         bool hasChild = node.getFirstChild() !is null;
         bool hasTitle = title !is null && !(title == destination);
         bool hasDestination = destination !is null && !(destination == (""));
 
-/*
         if (hasChild) {
-            textContent.write('"');
             visitChildren(node);
-            textContent.write('"');
-            if (hasTitle || hasDestination) {
-                textContent.whitespace();
-                textContent.write('(');
-            }
         }
 
-        if (hasTitle) {
-            textContent.write(title);
-            if (hasDestination) {
-                textContent.colon();
-                textContent.whitespace();
-            }
-        }
+        // tooltip
+        // if (hasTitle) {
+        //     textContent.write(title);
+        // }
 
-        if (hasDestination) {
-            textContent.write(destination);
-        }
-
-        if (hasChild && (hasTitle || hasDestination)) {
-            textContent.write(')');
-        }
-*/
-    }
-
-
-    private void writeEndOfLine() {
-/*
-        if (context.stripNewlines()) {
-            textContent.whitespace();
-        } else {
-            textContent.line();
-        }
-*/
+        // if (hasDestination) {
+        //     textContent.write(destination);
+        // }
     }
 }
