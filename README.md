@@ -20,13 +20,13 @@ BeamUI markdown viewer.
 - [ ] table
 - [ ] front matter
 - [ ] css
+- [ ] reimplement visitor with 2 step - format and render
 
 ## Long Term
 
-- [ ] HarfBuzz
-- [ ] http image download
 - [ ] tooltip on URL
-- [ ] Syntax hilight
+- [ ] Syntax highlight
+- [ ] HarfBuzz
 
 Screen Shot
 -----------

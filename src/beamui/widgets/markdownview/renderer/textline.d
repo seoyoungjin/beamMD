@@ -72,11 +72,20 @@ struct TextLine2
 
         Array!FragmentGlyph _glyphs;
         Array!LineSpan _wrapSpans;
+
+        // block offset
+        float _leftOffset;
     }
 
     this(dstring str)
     {
         this.str = str;
+        this._leftOffset = 0.0;
+    }
+
+    void setOffset(float left)
+    {
+        this._leftOffset = left;
     }
 
     void measure(ref TextLayoutStyle style)
@@ -319,18 +328,6 @@ struct TextLine2
         return ellipsis.shouldDraw;
     }
 
-    private void drawFragmentWrapped(Painter pr, Point linePos, ref Point offset, ref const(LineSpan)[] wraps, ref uint i,
-            ref uint start, uint end, TextStyle prevStyle)
-    {
-        TextStyle nextStyle = void;
-
-        if (start < end)
-        {
-            drawSimpleFragmentWrapped(pr, linePos, offset, wraps, start, end, prevStyle);
-            start = end;
-        }
-    }
-
     private void drawSimpleFragmentWrapped(Painter pr, Point linePos, ref Point offset, ref const(LineSpan)[] wraps,
             uint start, uint end, ref TextStyle style)
     {
@@ -360,8 +357,8 @@ struct TextLine2
 
             if (j > 0)
             {
-                // yjseo - start from 0 from 2nd line
-                linePos.x = 0;
+                // yjseo - start from _leftOffset from 2nd line
+                linePos.x = _leftOffset;
                 xpen = snapToDevicePixels(span.offset);
                 ypen += span.height;
             }
@@ -389,7 +386,7 @@ struct TextLine2
         offset.x = xpen;
         offset.y = ypen;
     }
-}
+} // TextLine2
 
 private struct Ellipsis
 {
