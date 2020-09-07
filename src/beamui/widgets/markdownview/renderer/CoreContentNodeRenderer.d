@@ -43,7 +43,8 @@ const int LIST_UPPER_MARGIN = 5;
 const int LIST_UNDER_MARGIN = 5;
 const int LISTITEM_UPPER_MARGIN = 3;
 const int LISTITEM_UNDER_MARGIN = 3;
-const int LISTITEM_MARGIN = 20;
+const int LISTITEM_MARGIN = 30;
+const dstring[] BULLET_MARKER = [ "\u2022", "\u25e6", "\u25a0", "\u25a1"];
 
 /**
  * The node renderer that renders all the core nodes (comes last in the order of node renderers).
@@ -123,13 +124,11 @@ class CoreContentNodeRenderer : AbstractVisitor, NodeRenderer {
         auto h = heading.getLevel();
         int size = cast(int)(DEFAULT_FONT_SIZE * HEADING_FONT_SIZES[h] / 10 + 0.5);
 
-        current.x = 0;
+        current.x = leftMargin();
         TextStyle oldStyle = style;
         style.font = FontManager.instance.getFont(FontSelector(FontFamily.sans_serif, size));
         visitChildren(heading);
-        // line break after paragraph
-        // LATER - last line height
-        current.y += style.font.height;
+        newLine();
 
         style = oldStyle;
         debug debugLine(NamedColor.red);
@@ -138,23 +137,25 @@ class CoreContentNodeRenderer : AbstractVisitor, NodeRenderer {
 
     override public void visit(Paragraph paragraph) {
         writeln(">>> Paragraph");
-        current.y += PARAGRAPH_UPPER_MARGIN;
+        if (paragraph.getParent() is null || cast(ListItem)paragraph.getParent() is null) {
+            current.y += PARAGRAPH_UPPER_MARGIN;
+        }
         debug debugLine(NamedColor.red);
-        float xorg = current.x = leftMargin();
-        TextStyle oldStyle = style;
+        current.x = leftMargin();
 
+        TextStyle oldStyle = style;
         style.font = FontManager.instance.getFont(FontSelector(FontFamily.sans_serif, DEFAULT_FONT_SIZE));
         visitChildren(paragraph);
-        // line break after paragraph
-        // LATER - last line height
-        if (xorg != current.x) {
-            current.y += style.font.height;
-            current.x = xorg;
-        }
-
+        // Add "end of line" only if its "root paragraph.
+        // if (paragraph.getParent() is null || cast(Document)paragraph.getParent() !is null) {
+           newLine();
+        // }
         style = oldStyle;
+
         debug debugLine(NamedColor.red);
-        current.y += PARAGRAPH_UNDER_MARGIN;
+        if (paragraph.getParent() is null || cast(ListItem)paragraph.getParent() is null) {
+            current.y += PARAGRAPH_UNDER_MARGIN;
+        }
         writeln("<<< Paragraph");
     }
 
@@ -169,10 +170,11 @@ class CoreContentNodeRenderer : AbstractVisitor, NodeRenderer {
         style.color = NamedColor.dark_gray;
         style.decoration = TextDecor(TextDecorLine.none, style.color);
         visitChildren(blockQuote);
+        painter.fillRect(org.x, org.y, 5, current.y - org.y, NamedColor.dark_gray);
+        newLine();
         style = oldStyle;
         bq_level--;
-
-        painter.fillRect(org.x, org.y, 5, current.y - org.y, NamedColor.dark_gray);
+        current.x = leftMargin();
 
         debug debugLine(NamedColor.yellow);
         current.y += QUOTE_UNDER_MARGIN;
@@ -180,6 +182,7 @@ class CoreContentNodeRenderer : AbstractVisitor, NodeRenderer {
 
     override public void visit(BulletList bulletList) {
         writeln("visit(BulletList)");
+        list_level++;
         listHolder = new BulletListHolder(listHolder, bulletList);
         visitChildren(bulletList);
         // writeEndOfLineIfNeeded(bulletList, null);
@@ -188,20 +191,18 @@ class CoreContentNodeRenderer : AbstractVisitor, NodeRenderer {
         } else {
            listHolder = null;
         }
+        list_level--;
     }
 
     override public void visit(OrderedList orderedList) {
         writeln("visit(OrderedList) ", orderedList.getDelimiter());
         list_level++;
-        if (listHolder !is null) {
-            // line break after paragraph
-            // LATER - last line height
-            current.y += style.font.height;
-            // writeEndOfLine();
-        }
+        // if (listHolder !is null) {
+        //     newLine();
+        // }
         listHolder = new OrderedListHolder(listHolder, orderedList);
         visitChildren(orderedList);
-        // writeEndOfLineIfNeeded(orderedList, null);
+        newLine();
         if (listHolder.getParent() !is null) {
             listHolder = listHolder.getParent();
         } else {
@@ -214,18 +215,17 @@ class CoreContentNodeRenderer : AbstractVisitor, NodeRenderer {
         writeln("visit(ListItem) ", listItem);
         if (listHolder !is null && cast(OrderedListHolder)listHolder !is null) {
             OrderedListHolder olHolder = cast(OrderedListHolder) listHolder;
-            string marker = olHolder.getIndent();
-            marker ~=  olHolder.getCounter().to!string ~ olHolder.getDelimiter();
-            drawText(marker);
+            dstring marker = olHolder.getCounter().to!dstring ~ olHolder.getDelimiter();
+            drawMarker(leftMargin() - 15, marker);
             visitChildren(listItem);
             olHolder.increaseCounter();
         } else if (listHolder !is null && cast(BulletListHolder)listHolder !is null) {
             BulletListHolder bulletListHolder = cast(BulletListHolder) listHolder;
-            string marker = bulletListHolder.getIndent() ~ bulletListHolder.getMarker();
-            drawText(marker);
+            dstring marker = getMarker();
+            drawMarker(leftMargin() - 15, marker);
             visitChildren(listItem);
         }
-        // writeEndOfLineIfNeeded(listItem, null);
+        // newLine();
     }
 
     override public void visit(Code code) {
@@ -240,33 +240,32 @@ class CoreContentNodeRenderer : AbstractVisitor, NodeRenderer {
 
     override public void visit(FencedCodeBlock fencedCodeBlock) {
         writeln("visit(FencedCodeBlock) ", fencedCodeBlock);
-        /*
-        if (context.stripNewlines()) {
-            textContent.writeStripped(fencedCodeBlock.getLiteral());
-            writeEndOfLineIfNeeded(fencedCodeBlock, null);
-        } else {
-            textContent.write(fencedCodeBlock.getLiteral());
-        }
-        */
+        TextStyle oldStyle = style;
+        const Font f = style.font;
+        style.font = FontManager.instance.getFont(FontSelector(FontFamily.monospace, f.size));
+        style.background = NamedColor.yellow;
+
+        // newLine();
+        drawText(fencedCodeBlock.getLiteral());
+
+        style = oldStyle;
     }
 
     override public void visit(IndentedCodeBlock indentedCodeBlock) {
         writeln("visit(IndentedCodeBlock) ", indentedCodeBlock);
-/*
-        if (context.stripNewlines()) {
-            textContent.writeStripped(indentedCodeBlock.getLiteral());
-            writeEndOfLineIfNeeded(indentedCodeBlock, null);
-        } else {
-            textContent.write(indentedCodeBlock.getLiteral());
-        }
-*/
+        TextStyle oldStyle = style;
+        const Font f = style.font;
+        style.font = FontManager.instance.getFont(FontSelector(FontFamily.monospace, f.size));
+        style.background = NamedColor.yellow;
+
+        drawText(indentedCodeBlock.getLiteral());
+
+        style = oldStyle;
     }
 
     override public void visit(HardLineBreak hardLineBreak) {
         writeln("visit(HardLineBreak) ", hardLineBreak);
-        current.x = leftMargin();
-        // LATER - last line height
-        current.y += style.font.height;
+        newLine();
     }
 
     override public void visit(ThematicBreak thematicBreak) {
@@ -335,6 +334,25 @@ class CoreContentNodeRenderer : AbstractVisitor, NodeRenderer {
         }
     }
 
+    private dstring getMarker() {
+        int level = list_level;
+        if (level < 1)
+            level = 1;
+        else if (level > 4)
+            level = 4;
+        return BULLET_MARKER[level - 1];
+    }
+
+    private void drawMarker(float x, dstring marker) {
+        dstring str = to!dstring(marker);
+        if (str.length == 0)
+            return;
+        TextLine2 txt = TextLine2(str);
+        auto layoutStyle = TextLayoutStyle(style);
+        txt.measure(layoutStyle);
+        txt.draw(painter, x, current.y, viewport.w, style);
+    }
+
     private void drawText(string text) {
         dstring str = to!dstring(text);
 
@@ -377,6 +395,16 @@ class CoreContentNodeRenderer : AbstractVisitor, NodeRenderer {
         // if (hasDestination) {
         //     textContent.write(destination);
         // }
+    }
+
+    private void newLine() {
+        // line break after paragraph
+        // LATER - last line height
+        float xorg = leftMargin();
+        if (xorg != current.x) {
+            current.y += style.font.height;
+            current.x = xorg;
+        }
     }
 
 debug:

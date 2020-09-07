@@ -3,6 +3,8 @@ BeamUI Markdown widget
 
 BeamUI markdown viewer.
 
+I started this project to test the graphic and css function of BeamUI.
+
 ## System and Tools Version
 
 - Linux
@@ -15,7 +17,7 @@ BeamUI markdown viewer.
 
 ## TODO
 
-- [ ] lists
+- [x] lists
 - [ ] image view
 - [ ] table
 - [ ] front matter
@@ -31,7 +33,7 @@ BeamUI markdown viewer.
 Screen Shot
 -----------
 
-![2020-09-03](screenshot/20200903.png)
+![2020-09-07](screenshot/20200907.png)
 
 Tricks
 ------

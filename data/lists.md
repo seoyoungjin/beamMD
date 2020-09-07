@@ -48,7 +48,7 @@ Blockquotes
 * his is the first list item.
 * ere's the second list item.
 
-  A blockquote would look great below the second list item.
+  > A blockquote would look great below the second list item.
 
 * nd here's the third list item.
 
