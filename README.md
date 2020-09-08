@@ -9,10 +9,8 @@ I started this project to test the graphic and css function of BeamUI.
 
 - Linux
   - Ubuntu 20.04 LTS
-  - LDC (1.20.1)
 - Windows
   - Windows 10
-  - LDC
   - Visual Studio Community Edition 2019
 
 ## TODO
@@ -22,7 +20,8 @@ I started this project to test the graphic and css function of BeamUI.
 - [x] front matter
 - [ ] table
 - [ ] css
-- [ ] reimplement visitor with 2 step - format and render
+- [ ] reimplement renderer with 2 step - format and render
+- [ ] compute mininum width - image or table
 
 ## Long Term
 

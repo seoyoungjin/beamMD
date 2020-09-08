@@ -105,6 +105,7 @@ class ContentRenderer {
 
     private class RendererContext : ContentNodeRendererContext {
         private NodeRendererMap nodeRendererMap;
+        private string _filename;
         private Painter _painter;
         private Size _size;
 
@@ -119,6 +120,11 @@ class ContentRenderer {
                 NodeRenderer nodeRenderer = nodeRendererFactory.create(this);
                 nodeRendererMap.add(nodeRenderer);
             }
+        }
+
+        // for image path name in case of relative path name
+        override public string filename() {
+            return _filename;
         }
 
         override public Painter painter() {

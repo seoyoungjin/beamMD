@@ -34,10 +34,10 @@ class FrontMatterNodeRenderer : YamlFrontMatterVisitor, NodeRenderer {
 
 
     public void render(Node front) {
-        writeln(front);
+        // writeln(front);
         front.accept(this);
 
-        writeln(getData);
+        // writeln(getData);
     }
 }
 

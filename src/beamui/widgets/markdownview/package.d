@@ -5,7 +5,8 @@ import std.file;
 import std.conv: to;
 
 import beamui.core.config;
-import beamui.widgets.widget;
+import beamui.core.geometry : Size;
+import beamui.graphics.painter : Painter;
 import beamui.widgets.controls;
 
 import hunt.collection.Collections;

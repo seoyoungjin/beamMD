@@ -47,6 +47,8 @@ const int LISTITEM_UPPER_MARGIN = 3;
 const int LISTITEM_UNDER_MARGIN = 3;
 const int LISTITEM_MARGIN = 30;
 const dstring[] BULLET_MARKER = [ "\u2022", "\u25e6", "\u25a0", "\u25a1"];
+const int CODE_BLOCK_UPPER_MARGIN = 5;
+const int CODE_BLOCK_UNDER_MARGIN = 5;
 
 /**
  * The node renderer that renders all the core nodes (comes last in the order of node renderers).
@@ -187,7 +189,6 @@ class CoreContentNodeRenderer : AbstractVisitor, NodeRenderer {
         list_level++;
         listHolder = new BulletListHolder(listHolder, bulletList);
         visitChildren(bulletList);
-        // writeEndOfLineIfNeeded(bulletList, null);
         if (listHolder.getParent() !is null) {
            listHolder = listHolder.getParent();
         } else {
@@ -236,7 +237,9 @@ class CoreContentNodeRenderer : AbstractVisitor, NodeRenderer {
         const Font f = style.font;
         style.font = FontManager.instance.getFont(FontSelector(FontFamily.monospace, f.size));
         style.background = NamedColor.light_gray;
+
         drawText(code.getLiteral());
+
         style = oldStyle;
     }
 
@@ -245,10 +248,21 @@ class CoreContentNodeRenderer : AbstractVisitor, NodeRenderer {
         TextStyle oldStyle = style;
         const Font f = style.font;
         style.font = FontManager.instance.getFont(FontSelector(FontFamily.monospace, f.size));
-        style.background = NamedColor.yellow;
+        style.color = NamedColor.gray;
+        style.decoration = TextDecor(TextDecorLine.none, style.color);
 
+        current.y += CODE_BLOCK_UPPER_MARGIN;
+        debugLine(NamedColor.gray);
         // newLine();
-        drawText(fencedCodeBlock.getLiteral());
+        // drawText(fencedCodeBlock.getLiteral());
+        SimpleText txt = SimpleText(to!dstring(fencedCodeBlock.getLiteral()));
+        txt.style = style;
+        txt.measure();
+        txt.wrap(viewport.w - leftMargin());
+        txt.draw(painter, leftMargin(), current.y, viewport.w - leftMargin());
+        current.y += txt.sizeAfterWrap.h;
+        debugLine(NamedColor.gray);
+        current.y += CODE_BLOCK_UNDER_MARGIN;
 
         style = oldStyle;
     }
@@ -258,9 +272,20 @@ class CoreContentNodeRenderer : AbstractVisitor, NodeRenderer {
         TextStyle oldStyle = style;
         const Font f = style.font;
         style.font = FontManager.instance.getFont(FontSelector(FontFamily.monospace, f.size));
-        style.background = NamedColor.yellow;
+        style.color = NamedColor.gray;
+        style.decoration = TextDecor(TextDecorLine.none, style.color);
 
-        drawText(indentedCodeBlock.getLiteral());
+        current.y += CODE_BLOCK_UPPER_MARGIN;
+        debugLine(NamedColor.gray);
+        // drawText(indentedCodeBlock.getLiteral());
+        SimpleText txt = SimpleText(to!dstring(indentedCodeBlock.getLiteral()));
+        txt.style = style;
+        txt.measure();
+        txt.wrap(viewport.w - leftMargin());
+        txt.draw(painter, leftMargin(), current.y, viewport.w - leftMargin());
+        current.y += txt.sizeAfterWrap.h;
+        debugLine(NamedColor.gray);
+        current.y += CODE_BLOCK_UNDER_MARGIN;
 
         style = oldStyle;
     }

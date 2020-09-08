@@ -5,7 +5,6 @@ import beamui.core.geometry : Size;
 import beamui.graphics.painter : Painter;
 
 public interface ContentNodeRendererContext {
-
     /**
      * @return painter
      */
@@ -15,6 +14,11 @@ public interface ContentNodeRendererContext {
      * @return viewport size
      */
     Size viewport();
+
+    /**
+     * @return file name - used for relative image path
+     */
+    string filename();
 
     /**
      * Render the specified node and its children using the configured renderers. This should be used to render child
