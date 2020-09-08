@@ -1,7 +1,5 @@
 module beamui.widgets.markdownview.renderer.ContentRenderer;
 
-import std.stdio;
-
 import hunt.markdown.Extension;
 import hunt.markdown.internal.renderer.NodeRendererMap;
 import hunt.markdown.node.Node;
@@ -89,9 +87,9 @@ class ContentRenderer {
         public Builder extensions(Iterable!Extension extensions) {
             foreach (Extension extension ; extensions) {
                 if (cast(ContentRenderer.ContentRendererExtension)extension !is null) {
-                    ContentRenderer.ContentRendererExtension htmlRendererExtension =
+                    ContentRenderer.ContentRendererExtension rendererExtension =
                             cast(ContentRenderer.ContentRendererExtension) extension;
-                    htmlRendererExtension.extend(this);
+                    rendererExtension.extend(this);
                 }
             }
             return this;

@@ -19,8 +19,8 @@ I started this project to test the graphic and css function of BeamUI.
 
 - [x] lists
 - [x] image view
+- [x] front matter
 - [ ] table
-- [ ] front matter
 - [ ] css
 - [ ] reimplement visitor with 2 step - format and render
 

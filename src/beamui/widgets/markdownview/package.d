@@ -15,9 +15,9 @@ import hunt.markdown.ext.table;
 import hunt.markdown.ext.matter.YamlFrontMatterExtension;
 
 import beamui.widgets.markdownview.renderer.ContentRenderer;
+import beamui.widgets.markdownview.renderer.FrontMatterExtension;;
 
 // LATER - scrollview
-// context - current position, css
 
 class MarkDownView : Canvas
 {
@@ -35,23 +35,19 @@ class MarkDownView : Canvas
     }
 
     private ContentRenderer defaultRenderer() {
-        auto frontmatter_ext = Collections.singleton(YamlFrontMatterExtension.create());
-        auto table_ext = Collections.singleton(TableExtension.create());
-        // LATER make extention
-        // auto renderer = ContentRenderer.builder().build();
+        auto frontmatter = Collections.singleton(FrontMatterExtension.create());
         auto renderer = ContentRenderer.builder()
-                .extensions(frontmatter_ext)
-                .extensions(table_ext)
+                .extensions(frontmatter)
                 .build();
         return renderer;
     }
 
     private Node parse(string source) {
-        auto frontmatter_ext = Collections.singleton(YamlFrontMatterExtension.create());
-        auto table_ext = Collections.singleton(TableExtension.create());
+        auto fm_parser = Collections.singleton(YamlFrontMatterExtension.create());
+        auto table_parser = Collections.singleton(TableExtension.create());
         Parser parser = Parser.builder()
-                .extensions(frontmatter_ext)
-                .extensions(table_ext)
+                .extensions(fm_parser)
+                .extensions(table_parser)
                 .build();
         Node document = parser.parse(source);
         return document;
