@@ -20,7 +20,9 @@ import std.regex;
 import std.conv;
 
 import beamui.core.geometry : Point, Size;
+import beamui.graphics.bitmap;
 import beamui.graphics.colors;
+import beamui.graphics.images;
 import beamui.graphics.painter : Painter;
 import beamui.text.fonts;
 import beamui.text.line;
@@ -120,7 +122,7 @@ class CoreContentNodeRenderer : AbstractVisitor, NodeRenderer {
     }
 
     override public void visit(Heading heading) {
-        writeln("visit(heading) ", heading.getLevel());
+        // writeln("visit(heading) ", heading.getLevel());
         auto h = heading.getLevel();
         int size = cast(int)(DEFAULT_FONT_SIZE * HEADING_FONT_SIZES[h] / 10 + 0.5);
 
@@ -136,7 +138,7 @@ class CoreContentNodeRenderer : AbstractVisitor, NodeRenderer {
     }
 
     override public void visit(Paragraph paragraph) {
-        writeln(">>> Paragraph");
+        // writeln(">>> Paragraph");
         if (paragraph.getParent() is null || cast(ListItem)paragraph.getParent() is null) {
             current.y += PARAGRAPH_UPPER_MARGIN;
         }
@@ -156,11 +158,11 @@ class CoreContentNodeRenderer : AbstractVisitor, NodeRenderer {
         if (paragraph.getParent() is null || cast(ListItem)paragraph.getParent() is null) {
             current.y += PARAGRAPH_UNDER_MARGIN;
         }
-        writeln("<<< Paragraph");
+        // writeln("<<< Paragraph");
     }
 
     override public void visit(BlockQuote blockQuote) {
-        writeln("visit(blockQoute)", blockQuote);
+        // writeln("visit(blockQoute)", blockQuote);
         current.y += QUOTE_UPPER_MARGIN;
         debug debugLine(NamedColor.yellow);
         Point org = current;
@@ -181,7 +183,7 @@ class CoreContentNodeRenderer : AbstractVisitor, NodeRenderer {
     }
 
     override public void visit(BulletList bulletList) {
-        writeln("visit(BulletList)");
+        // writeln("visit(BulletList)");
         list_level++;
         listHolder = new BulletListHolder(listHolder, bulletList);
         visitChildren(bulletList);
@@ -195,7 +197,7 @@ class CoreContentNodeRenderer : AbstractVisitor, NodeRenderer {
     }
 
     override public void visit(OrderedList orderedList) {
-        writeln("visit(OrderedList) ", orderedList.getDelimiter());
+        // writeln("visit(OrderedList) ", orderedList.getDelimiter());
         list_level++;
         // if (listHolder !is null) {
         //     newLine();
@@ -212,7 +214,7 @@ class CoreContentNodeRenderer : AbstractVisitor, NodeRenderer {
     }
 
     override public void visit(ListItem listItem) {
-        writeln("visit(ListItem) ", listItem);
+        // writeln("visit(ListItem) ", listItem);
         if (listHolder !is null && cast(OrderedListHolder)listHolder !is null) {
             OrderedListHolder olHolder = cast(OrderedListHolder) listHolder;
             dstring marker = olHolder.getCounter().to!dstring ~ olHolder.getDelimiter();
@@ -229,7 +231,7 @@ class CoreContentNodeRenderer : AbstractVisitor, NodeRenderer {
     }
 
     override public void visit(Code code) {
-        writeln("visit(code) ", code.getLiteral());
+        // writeln("visit(code) ", code.getLiteral());
         TextStyle oldStyle = style;
         const Font f = style.font;
         style.font = FontManager.instance.getFont(FontSelector(FontFamily.monospace, f.size));
@@ -239,7 +241,7 @@ class CoreContentNodeRenderer : AbstractVisitor, NodeRenderer {
     }
 
     override public void visit(FencedCodeBlock fencedCodeBlock) {
-        writeln("visit(FencedCodeBlock) ", fencedCodeBlock);
+        // writeln("visit(FencedCodeBlock) ", fencedCodeBlock);
         TextStyle oldStyle = style;
         const Font f = style.font;
         style.font = FontManager.instance.getFont(FontSelector(FontFamily.monospace, f.size));
@@ -252,7 +254,7 @@ class CoreContentNodeRenderer : AbstractVisitor, NodeRenderer {
     }
 
     override public void visit(IndentedCodeBlock indentedCodeBlock) {
-        writeln("visit(IndentedCodeBlock) ", indentedCodeBlock);
+        // writeln("visit(IndentedCodeBlock) ", indentedCodeBlock);
         TextStyle oldStyle = style;
         const Font f = style.font;
         style.font = FontManager.instance.getFont(FontSelector(FontFamily.monospace, f.size));
@@ -264,12 +266,12 @@ class CoreContentNodeRenderer : AbstractVisitor, NodeRenderer {
     }
 
     override public void visit(HardLineBreak hardLineBreak) {
-        writeln("visit(HardLineBreak) ", hardLineBreak);
+        // writeln("visit(HardLineBreak) ", hardLineBreak);
         newLine();
     }
 
     override public void visit(ThematicBreak thematicBreak) {
-        writeln("visit(ThematicBreak) ", thematicBreak);
+        // writeln("visit(ThematicBreak) ", thematicBreak);
         painter.drawLine(0, current.y + 2, viewport.w, current.y + 2, NamedColor.black);
         current.y += 5;
     }
@@ -283,11 +285,23 @@ class CoreContentNodeRenderer : AbstractVisitor, NodeRenderer {
     }
 
     override public void visit(Image image) {
-        drawLink(image, image.getTitle(), image.getDestination());
+        // writeln("visit(Image) ", image);
+        bool hasChild = image.getFirstChild() !is null;
+
+        // LATER - merge with current file path
+        Bitmap bitmap = loadImage(image.getDestination());
+        if (bitmap) {
+            painter.drawImage(bitmap, current.x, current.y, 1);
+            current.y += bitmap.height();
+        }
+        else if (hasChild) {
+            assert(cast(Text)image.getFirstChild() !is null);
+            visitChildren(image);
+        }
     }
 
     override public void visit(Link link) {
-        writeln("visit(Link) ", link);
+        // writeln("visit(Link) ", link);
         TextStyle oldStyle = style;
         style.color = NamedColor.blue;
         style.decoration = TextDecor(TextDecorLine.under, style.color);
@@ -303,7 +317,7 @@ class CoreContentNodeRenderer : AbstractVisitor, NodeRenderer {
     }
 
     override public void visit(Emphasis emphasis) {
-        writeln("visit(Emphasis) ", emphasis.getOpeningDelimiter());
+        // writeln("visit(Emphasis) ", emphasis.getOpeningDelimiter());
         TextStyle oldStyle = style;
         const Font f = style.font;
         style.font = FontManager.instance.getFont(FontSelector(f.family, f.size, FontStyle.italic, f.weight));
@@ -312,7 +326,7 @@ class CoreContentNodeRenderer : AbstractVisitor, NodeRenderer {
     }
 
     override public void visit(StrongEmphasis emphasis) {
-        writeln("visit(StrongEmphasis) ", emphasis.getOpeningDelimiter());
+        // writeln("visit(StrongEmphasis) ", emphasis.getOpeningDelimiter());
         TextStyle oldStyle = style;
         const Font f = style.font;
         style.font = FontManager.instance.getFont(FontSelector(f.family, f.size, f.italic, FontWeight.bold));
@@ -321,7 +335,7 @@ class CoreContentNodeRenderer : AbstractVisitor, NodeRenderer {
     }
 
     override public void visit(Text text) {
-        writeln("visit(Text) ", text.getLiteral());
+        // writeln("visit(Text) ", text.getLiteral());
         drawText(text.getLiteral());
     }
 

@@ -18,7 +18,7 @@ I started this project to test the graphic and css function of BeamUI.
 ## TODO
 
 - [x] lists
-- [ ] image view
+- [x] image view
 - [ ] table
 - [ ] front matter
 - [ ] css

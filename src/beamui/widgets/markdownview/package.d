@@ -30,7 +30,7 @@ class MarkDownView : Canvas
 
     void drawContent(Painter pr, Size sz)
     {
-        writeln("drawContent size = ", sz);
+        // writeln("drawContent size = ", sz);
         defaultRenderer().render(doc, pr, sz);
     }
 
@@ -53,7 +53,6 @@ class MarkDownView : Canvas
                 .extensions(frontmatter_ext)
                 .extensions(table_ext)
                 .build();
-        // Parser parser = Parser.builder().build();
         Node document = parser.parse(source);
         return document;
     }

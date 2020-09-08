@@ -40,6 +40,7 @@ MarkDownDemo {
 }
 MarkDownView {
     background-color: #ffffff;
+    flex: 1;
     width: 500px;
     min-width: 100;
     min-height: 400px;
@@ -59,7 +60,6 @@ class MarkDownDemo : Panel
     {
         MarkDownView md = render!MarkDownView;
         md.filename = data.filename;
-        md.attributes["stretch"];
 
         wrap(
             render((Label lb) { lb.text = "Top"; }),
