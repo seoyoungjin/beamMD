@@ -17,6 +17,7 @@ import hunt.markdown.ext.matter.YamlFrontMatterExtension;
 
 import beamui.widgets.markdownview.renderer.ContentRenderer;
 import beamui.widgets.markdownview.renderer.FrontMatterExtension;;
+import beamui.widgets.markdownview.renderer.TableRendererExtension;;
 
 // LATER - scrollview
 
@@ -37,8 +38,10 @@ class MarkDownView : Canvas
 
     private ContentRenderer defaultRenderer() {
         auto frontmatter = Collections.singleton(FrontMatterExtension.create());
+        auto table_renderer = Collections.singleton(TableRendererExtension.create());
         auto renderer = ContentRenderer.builder()
                 .extensions(frontmatter)
+                .extensions(table_renderer)
                 .build();
         return renderer;
     }

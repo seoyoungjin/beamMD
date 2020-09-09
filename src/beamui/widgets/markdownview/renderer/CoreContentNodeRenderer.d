@@ -4,9 +4,6 @@ import hunt.markdown.node;
 import hunt.markdown.node.AbstractVisitor;
 import hunt.markdown.node.Heading;
 import hunt.markdown.renderer.NodeRenderer;
-import hunt.markdown.internal.renderer.text.BulletListHolder;
-import hunt.markdown.internal.renderer.text.ListHolder;
-import hunt.markdown.internal.renderer.text.OrderedListHolder;
 
 import hunt.collection.HashSet;
 import hunt.collection.Set;
@@ -29,6 +26,7 @@ import beamui.text.line;
 import beamui.text.simple;
 import beamui.text.style;
 
+import beamui.widgets.markdownview.renderer.ListHolder;
 import beamui.widgets.markdownview.renderer.textline;
 import beamui.widgets.markdownview.renderer.ContentNodeRendererContext;
 
@@ -46,7 +44,6 @@ const int LIST_UNDER_MARGIN = 5;
 const int LISTITEM_UPPER_MARGIN = 3;
 const int LISTITEM_UNDER_MARGIN = 3;
 const int LISTITEM_MARGIN = 30;
-const dstring[] BULLET_MARKER = [ "\u2022", "\u25e6", "\u25a0", "\u25a1"];
 const int CODE_BLOCK_UPPER_MARGIN = 5;
 const int CODE_BLOCK_UNDER_MARGIN = 5;
 
@@ -224,7 +221,7 @@ class CoreContentNodeRenderer : AbstractVisitor, NodeRenderer {
             olHolder.increaseCounter();
         } else if (listHolder !is null && cast(BulletListHolder)listHolder !is null) {
             BulletListHolder bulletListHolder = cast(BulletListHolder) listHolder;
-            dstring marker = getMarker();
+            dstring marker = bulletListHolder.getMarker(list_level);
             drawMarker(leftMargin() - 15, marker);
             visitChildren(listItem);
         }
@@ -371,15 +368,6 @@ class CoreContentNodeRenderer : AbstractVisitor, NodeRenderer {
             context.render(node);
             node = next;
         }
-    }
-
-    private dstring getMarker() {
-        int level = list_level;
-        if (level < 1)
-            level = 1;
-        else if (level > 4)
-            level = 4;
-        return BULLET_MARKER[level - 1];
     }
 
     private void drawMarker(float x, dstring marker) {

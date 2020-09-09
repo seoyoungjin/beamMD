@@ -21,7 +21,7 @@ I started this project to test the graphic and css function of BeamUI.
 - [ ] table
 - [ ] css
 - [ ] reimplement renderer with 2 step - format and render
-- [ ] compute mininum width - image or table
+- [ ] compute mininum width image or table
 
 ## Long Term
 
